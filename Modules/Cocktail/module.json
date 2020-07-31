@@ -1,0 +1,16 @@
+{
+    "name": "Cocktail",
+    "alias": "cocktail",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 0,
+    "providers": [
+        "Modules\\Cocktail\\Providers\\CocktailServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        "start.php"
+    ],
+    "requires": []
+}
