@@ -143,8 +143,14 @@ class ReviewController extends Controller {
     }
 
     public function checkWorkshopUser(){
+
         $this->authService->isUserBelongsToWorkshop();
     }
 
+    public function isBelongsToNews(Request $request){
+
+        $this->authService->isUserBelongsToNews($request->news_id);
+
+    }
 
 }

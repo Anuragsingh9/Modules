@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Workshop extends Model
 {
-    protected $table = 'workshop';
+    protected $table = 'workshops';
 
     protected $fillable = [
         'president_id',
@@ -25,4 +25,9 @@ class Workshop extends Model
         'is_event_workshop',
 
     ];
+
+    public function meta()
+    {
+        return $this->hasMany(WorkshopMeta::class);
+    }
 }
