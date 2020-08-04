@@ -12,6 +12,9 @@ use Modules\Newsletter\Http\Requests\NewsCreateRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
 use Modules\Newsletter\Services\NewsService;
+use Modules\Newsletter\Transformers\GroupNewsByStatusResource;
+use Modules\Newsletter\Transformers\NewsByStatus;
+use Modules\Newsletter\Transformers\NewsByStatusResource;
 use Modules\Newsletter\Transformers\NewsResource;
 use Symfony\Component\Workflow\Registry;
 
@@ -64,7 +67,8 @@ class NewsController extends Controller {
             DB::beginTransaction();
             $news=$this->newsService->getNewsByStatus($status);
             DB::commit();
-            return $news;
+
+            return  NewsByStatusResource::collection($news)->additional(['status'=>TRUE]);
         }catch (\Exception $e){
             DB::rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
@@ -102,16 +106,18 @@ class NewsController extends Controller {
      * @param WorkflowTransitionRequest $request
      * @return JsonResponse|NewsResource
      */
-    public function applyTransition(Request $request) {
+    public function applyTransition(WorkflowTransitionRequest $request) {
         try {
             DB::beginTransaction();
-//            $news=News::where('id',$request->news_id)->get();
-            $newss = $this->newsService->applyTransitions($request->news_id, $request->transition_name);
+//            dd($request->newsLetter);
+
+            $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsLetter);
             DB::commit();
-            return (new NewsResource($newss))->additional(['status' => TRUE]);
+
+            return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getTrace()], 200);
+            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }
 
@@ -139,16 +145,11 @@ class NewsController extends Controller {
         $status=News::select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->get();
+//        return  GroupNewsByStatusResource::collection($status)->additional(['status'=>TRUE]);
         return $status;
-
-//        $status= News::all();
-//        $validated = $status->where('status', 'validated')->count();
-//        $pre_validation = $status->where('status', 'pre_validation')->count();
-//
-//        return 'Validated : ' .  $validated .  ' Pre Validation : ' . $pre_validation;
-
 
     }
 
 
 }
+

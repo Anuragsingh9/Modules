@@ -4,10 +4,10 @@ namespace Modules\Newsletter\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Modules\Newsletter\Entities\News;
-use Modules\Newsletter\Rules\CheckTransitionAvailableRule;
-use Symfony\Component\Workflow\Transition;
-use Workflow;
+//use Modules\Newsletter\Entities\News;
+//use Modules\Newsletter\Rules\CheckTransitionAvailableRule;
+//use Symfony\Component\Workflow\Transition;
+//use Workflow;
 
 class WorkflowTransitionRequest extends FormRequest {
     /**
@@ -16,12 +16,14 @@ class WorkflowTransitionRequest extends FormRequest {
      * @return array
      */
     public function rules() {
+
         return [
+            "newsLetter" => "required_if:transition_name,==,send",
             'news_id'         => ['required',
                 Rule::exists('news_info', 'id')
-                    ->whereNull('deleted_at')], // using explicitly rule class to make sure not soft delete
+                    ->whereNull('deleted_at')],
             'transition_name' => ['required'
-            ]
+            ],
         ];
     }
     
@@ -31,6 +33,8 @@ class WorkflowTransitionRequest extends FormRequest {
      * @return bool
      */
     public function authorize() {
-        return TRUE; // todo
+
+        return true;
+
     }
 }

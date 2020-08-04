@@ -23,7 +23,7 @@ class AuthorizationsService extends Service{
     public function isUserBelongsToWorkshop(){
 
         if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
-            return ture;
+            return true;
         }else{
         $workshop = Workshop::with('meta')
             ->where('code1','=','NSL')

@@ -9,17 +9,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Modules\Newsletter\Entities\News;
 use Exception;
+use Modules\Newsletter\Entities\Newsletter;
 use Symfony\Component\Workflow\Transition;
 use Workflow;
 
 class NewsService {
     
-    private $tenancy;
+//    private $tenancy;
 
-    public function __construct() {
-
-//        $this->tenancy = app(\Hyn\Tenancy\Environment::class);
-    }
+//    public function __construct() {
+//
+////        $this->tenancy = app(\Hyn\Tenancy\Environment::class);
+//    }
     
     /**
      * @return NewsService
@@ -106,13 +107,19 @@ class NewsService {
      * @param string $transitionName
      * @return News
      */
-    public function applyTransitions($newsId, $transitionName) {
+    public function applyTransitions($newsId, $transitionName,$newsLetter) {
         $news = News::findOrFail($newsId);
-//        $workflow = $news->workflow_get();
+//    dd($transitionName);
         $workflow = Workflow::get($news,'news_status');
-//        dd($workflow);
+
         $workflow->apply($news, $transitionName);
+
         $news->save();
+        $param=[
+            'news_id'=>$newsId,
+            'newsletter_id'=>$newsLetter,
+        ];
+    Newsletter::create($param);
         return $news;
     }
 
