@@ -12,6 +12,9 @@ Route::group(['middleware' => 'web', 'prefix' => 'newsletter', 'namespace' => 'M
         Route::post('transition', 'NewsController@applyTransition');
 //        Route::get('counts', 'NewsController@getCounts'); // to get the counts of news when click on news management
 //        Route::get('state', 'NewsController@getNews');
+        Route::post('newswith/newsLetter', 'NewsController@newsToNews_letter');
+        Route::post('fileupload','NewsController@fileUploadToS3');
+
 
         Route::group(['prefix' => 'review'], function () {
             Route::get('review', 'ReviewController@getReviews');

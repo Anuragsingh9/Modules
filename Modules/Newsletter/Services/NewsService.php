@@ -96,7 +96,7 @@ class NewsService {
         $hostname = $this->tenancy->hostname()->fqdn;
         $path = 'ooionline/' . $hostname . '/workshop/news_moderation/';
         $path .= (($type == 'thumbnail') ? 'video_thumbnails/' : '/news_image/');
-        $fileName = time() . '.' . $blob->getClientOriginalExtension();;
+        $fileName = time() . '.' . $blob->getClientOriginalExtension();
         Storage::disk('s3')
             ->putFileAs($path, $blob, $fileName, 'public'); // to put the file on specific path with custom name,
         return Storage::disk('s3')->url($path . $fileName); // giving path and filename will return its url,
@@ -145,6 +145,16 @@ class NewsService {
 
     public function getNewsByState($state) {
         return News::where('status', $state)->get();
+    }
+
+    public function newsWithNews_letter($newsId,$newsLetter_id){
+        $news = News::find($newsId);
+        $param=[
+            'news_id'=>$newsId,
+            'newsletter_id'=>$newsLetter_id,
+        ];
+        Newsletter::create($param);
+        return $news;
     }
     
     

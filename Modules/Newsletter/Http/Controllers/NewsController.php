@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Http\Requests\NewsCreateRequest;
+use Modules\Newsletter\Http\Requests\NewsToNewsLetterRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
 use Modules\Newsletter\Services\NewsService;
@@ -109,8 +111,6 @@ class NewsController extends Controller {
     public function applyTransition(WorkflowTransitionRequest $request) {
         try {
             DB::beginTransaction();
-//            dd($request->newsLetter);
-
             $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsLetter);
             DB::commit();
 
@@ -147,8 +147,29 @@ class NewsController extends Controller {
             ->get();
 //        return  GroupNewsByStatusResource::collection($status)->additional(['status'=>TRUE]);
         return $status;
-
     }
+
+    public function newsToNews_letter(NewsToNewsLetterRequest $request){
+        try {
+            DB::beginTransaction();
+            $news = $this->newsService->newsWithNews_letter($request->news_id,$request->newsLetter_id);
+            DB::commit();
+            return $news;
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
+        }
+    }
+
+    function fileUploadToS3(Request $request)
+    {
+        $filePath=$request->filePath;
+        $image= $request->image;
+        $visibility=$request->visibilit;
+        $path = Storage::disk('s3')->put($filePath, $image, $visibility);
+        return $path;
+    }
+
 
 
 }
