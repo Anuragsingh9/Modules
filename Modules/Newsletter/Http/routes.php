@@ -13,7 +13,8 @@ Route::group(['middleware' => 'web', 'prefix' => 'newsletter', 'namespace' => 'M
 //        Route::get('counts', 'NewsController@getCounts'); // to get the counts of news when click on news management
 //        Route::get('state', 'NewsController@getNews');
         Route::post('newswith/newsLetter', 'NewsController@newsToNews_letter');
-        Route::post('fileupload','NewsController@fileUploadToS3');
+
+
 
 
         Route::group(['prefix' => 'review'], function () {
@@ -32,3 +33,8 @@ Route::group(['middleware' => 'web', 'prefix' => 'newsletter', 'namespace' => 'M
         });
     });
 });
+Route::group(['middleware' => 'web', 'prefix' => 'newsletter/news/aws','namespace' => 'App\Http\Controllers'], function(){
+    Route::post('fileupload','CoreController@fileUploadToS3');
+    Route::post('filedownload','CoreController@getS3Parameter');
+});
+

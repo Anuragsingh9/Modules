@@ -44,17 +44,22 @@ class NewsController extends Controller {
     public function store(NewsCreateRequest $request) {
         try {
             DB::beginTransaction();
-            [$mediaUrl, $mediaThumbnailUrl] = $this->newsService->uploadNewsMedia($request->media_type, $request->media_url, $request->media_blob);
+            $param = $this->newsService->uploadNewsMedia($request->media_type, $request->media_url, $request->media_blob);
+//            dd($param);
+            $media_type=$param['media_type'];
+            $media_url=$param['media_url'];
+            $media_thumbnail=$param['media_thumbnail'];
             $param = [
                 'title'           => $request->title,
                 'header'          => $request->header,
                 'description'     => $request->description,
                 'status'          => $request->status, // default status,
                 'created_by'      => 2,
-                'media_type'      => $request->media_type,
-                'media_url'       => $request->media_url,
-                'media_thumbnail' => $request->media_thumbnail,
+                'media_type'      => $media_type,
+                'media_url'       => $media_url,
+                'media_thumbnail' => $media_thumbnail,
             ];
+//            dd($path);
             $news = $this->newsService->createNews($param);
             DB::commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
@@ -161,14 +166,6 @@ class NewsController extends Controller {
         }
     }
 
-    function fileUploadToS3(Request $request)
-    {
-        $filePath=$request->filePath;
-        $image= $request->image;
-        $visibility=$request->visibilit;
-        $path = Storage::disk('s3')->put($filePath, $image, $visibility);
-        return $path;
-    }
 
 
 

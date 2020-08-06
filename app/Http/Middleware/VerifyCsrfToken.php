@@ -18,6 +18,9 @@ class VerifyCsrfToken extends Middleware
         'newsletter/news/review/checkworkshop',
         'newsletter/news/transition',
         'newsletter/news/newswith/newsLetter',
-        'newsletter/news/fileupload'
+        'newsletter/news/fileupload',
+        'newsletter/news/filedownload',
+        'newsletter/news/aws/filedownload',
+        'newsletter/news/aws/fileupload'
     ];
 }

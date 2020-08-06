@@ -2,15 +2,28 @@
 
 namespace Modules\Newsletter\Transformers;
 
+use App\Http\Controllers\CoreController;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\Resource;
+use Modules\Newsletter\Services\NewsService;
 
 class NewsResource extends Resource {
+//    private $core;
+//
+//    public function __construct() {
+//
+//        $this->core = CoreController::getInstance();
+//    }
+
+
     /**
      * @param Request
      * @return array
      */
     public function toArray($request) {
+        $this->core = app(\App\Http\Controllers\CoreController::class);
+        $path                     = $this->media_url;
+
 //        $reviews = [];
 //        foreach($this->reviews as $review){
 //            array_push($reviews, [
@@ -25,10 +38,10 @@ class NewsResource extends Resource {
             'header'                  => $this->header,
             'description'             => $this->description,
             'status'                  => $this->status,
-            'media_url'               => $this->media_url,
             'media_thumbnail'         => $this->media_thumbnail,
-            'review_id'       => $this->id,
-            'review_reaction' => $this->reviewsCountByCategory,
+            'review_id'               => $this->id,
+            'media_url'               =>$this->core->getS3Parameter($path),
+            'review_reaction'         => $this->reviewsCountByCategory,
         ];
     }
 }

@@ -74,17 +74,22 @@ class NewsService {
      * @return array
      */
     public function uploadNewsMedia($mediaType, $url, $blob) {
-//        if ($mediaType == 0) { // video uploading
-//            $mediaUrl = $url;
-//            $mediaThumbnailUrl = $this->newsService->upload($blob, 'thumbnail');
-//        } else if ($mediaType == 1) { // image from system uploading
-//            $mediaUrl = $this->upload($blob, 'image');
-//            $mediaThumbnailUrl = NULL;
-//        } else { // media_type == 2 and adobe image uploading so we already have url,
-//            $mediaUrl = $url;
-//            $mediaThumbnailUrl = NULL;
-//        }
-//        return [$mediaUrl, $mediaThumbnailUrl];
+//        $path = $this->updateNewsMedia($blob, 'image');
+        $param = [];
+        if ($mediaType == 0) { // video uploading
+            $param ['media_url'] = $url;
+            $param['media_type'] = 0;
+            $param['media_thumbnail'] = $this->newsService->updateNewsMedia($blob, 'thumbnail');
+        } else if ($mediaType == 1) { // image from system uploading
+            $param['media_type'] = 1;
+            $param ['media_url'] = $this->updateNewsMedia($blob, 'image');
+            $param['media_thumbnail'] = NULL;
+        } else { // media_type == 2 and adobe image uploading so we already have url,
+            $param['media_type'] = 2;
+            $param ['media_url'] = $url;
+            $param['media_thumbnail'] = NULL;
+        }
+        return $param;
     }
 
     /**
@@ -92,14 +97,19 @@ class NewsService {
      * @param string $type
      * @return string
      */
-    public function upload($blob, $type) {
-        $hostname = $this->tenancy->hostname()->fqdn;
-        $path = 'ooionline/' . $hostname . '/workshop/news_moderation/';
-        $path .= (($type == 'thumbnail') ? 'video_thumbnails/' : '/news_image/');
+    public function updateNewsMedia($blob, $type) {
+
+        $path='public';
+//        $hostname = $this->tenancy->hostname()->fqdn;
+//        $path = 'ooionline/' . $hostname . '/workshop/news_moderation/';
+//        $path .= (($type == 'thumbnail') ? 'video_thumbnails/' : '/news_image/');
         $fileName = time() . '.' . $blob->getClientOriginalExtension();
-        Storage::disk('s3')
+        $path=Storage::disk('s3')
             ->putFileAs($path, $blob, $fileName, 'public'); // to put the file on specific path with custom name,
-        return Storage::disk('s3')->url($path . $fileName); // giving path and filename will return its url,
+//         $path=Storage::disk('s3')->url($path . $fileName); // giving path and filename will return its url,
+//        dd($path);
+
+        return $path;
     }
 
     /**
