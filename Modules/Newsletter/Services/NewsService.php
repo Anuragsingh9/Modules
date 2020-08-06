@@ -74,16 +74,19 @@ class NewsService {
      * @return array
      */
     public function uploadNewsMedia($mediaType, $url, $blob) {
+        $this->core = app(\App\Http\Controllers\CoreController::class);
 //        $path = $this->updateNewsMedia($blob, 'image');
         $param = [];
         if ($mediaType == 0) { // video uploading
             $param ['media_url'] = $url;
             $param['media_type'] = 0;
-            $param['media_thumbnail'] = $this->newsService->updateNewsMedia($blob, 'thumbnail');
+//            $param['media_thumbnail'] = $this->newsService->updateNewsMedia($blob, 'thumbnail');
+            $param['media_thumbnail'] = $this->core->fileUploadToS3($blob);
+
         } else if ($mediaType == 1) { // image from system uploading
             $param['media_type'] = 1;
-            $param ['media_url'] = $this->updateNewsMedia($blob, 'image');
-            $param['media_thumbnail'] = NULL;
+            $param ['media_url'] = $this->core->fileUploadToS3($blob,$mediaType);
+            $param['media_thumbnail'] = NUll;
         } else { // media_type == 2 and adobe image uploading so we already have url,
             $param['media_type'] = 2;
             $param ['media_url'] = $url;
@@ -169,3 +172,5 @@ class NewsService {
     
     
 }
+
+
