@@ -40,6 +40,7 @@ class NewsService {
      * @throws Exception
      */
     public function createNews($param) {
+        $param= $this->uploadNewsMedia($param);
         $news = News::create($param);
         if (!$news) {
             throw new \Exception();
@@ -61,6 +62,8 @@ class NewsService {
      * @throws Exception
      */
     public function update($id, $param) {
+        $param= $this->uploadNewsMedia($param);
+
         $news = News::find($id);
         if (!$news->update($param))
             throw new Exception();
@@ -73,26 +76,25 @@ class NewsService {
      * @param $blob
      * @return array
      */
-    public function uploadNewsMedia($mediaType, $url, $blob) {
+    public function uploadNewsMedia($param) {
         $this->core = app(\App\Http\Controllers\CoreController::class);
-//        $path = $this->updateNewsMedia($blob, 'image');
-        $param = [];
-        if ($mediaType == 0) { // video uploading
-            $param ['media_url'] = $url;
-            $param['media_type'] = 0;
-//            $param['media_thumbnail'] = $this->newsService->updateNewsMedia($blob, 'thumbnail');
-            $param['media_thumbnail'] = $this->core->fileUploadToS3($blob);
-
-        } else if ($mediaType == 1) { // image from system uploading
-            $param['media_type'] = 1;
-            $param ['media_url'] = $this->core->fileUploadToS3($blob,$mediaType);
-            $param['media_thumbnail'] = NUll;
-        } else { // media_type == 2 and adobe image uploading so we already have url,
-            $param['media_type'] = 2;
-            $param ['media_url'] = $url;
-            $param['media_thumbnail'] = NULL;
+        if(isset($param['request_media_type']) && $param['request_media_type']) {
+            if ($param['request_media_type'] == 0) { // video uploading
+                $param ['media_url'] = $param['request_media_url'];
+                $param['media_type'] = 0;
+                $param['media_thumbnail'] = $this->core->fileUploadToS3($param['request_media_blob']);
+            } else if ($param['request_media_type'] == 1) { // image from system uploading
+                $param['media_type'] = 1;
+                $param ['media_url'] = $this->core->fileUploadToS3($param['request_media_blob'], $param['request_media_type']);
+                $param['media_thumbnail'] = NUll;
+            } else { // media_type == 2 and adobe image uploading so we already have url,
+                $param['media_type'] = 2;
+                $param ['media_url'] = $param['request_media_url'];
+                $param['media_thumbnail'] = NULL;
+            }
         }
         return $param;
+
     }
 
     /**

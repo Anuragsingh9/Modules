@@ -15,6 +15,7 @@ class GroupNewsByStatusResource extends Resource {
     public function toArray($request) {
         return
             [
+
             ];
 
     }

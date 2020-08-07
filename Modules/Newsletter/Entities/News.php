@@ -30,9 +30,9 @@ class News extends Model {
         return $this->morphMany(NewsReview::class, 'reviewable')
             ->select(
                 'reviewable_id',
-                DB::raw("COUNT(CASE WHEN review_reaction=1 THEN 1 ELSE NULL END) as review_bad"),
-                DB::raw("COUNT(CASE WHEN review_reaction=2 THEN 1 ELSE NULL END) as review_average"),
-                DB::raw("COUNT(CASE WHEN review_reaction=3 THEN 1 ELSE NULL END) as review_good")
+                DB::raw("COUNT(CASE WHEN review_reaction=0 THEN 1 ELSE NULL END) as review_bad"),
+                DB::raw("COUNT(CASE WHEN review_reaction=1 THEN 1 ELSE NULL END) as review_average"),
+                DB::raw("COUNT(CASE WHEN review_reaction=2 THEN 1 ELSE NULL END) as review_good")
             )
             ->groupBy('reviewable_id');
     }
