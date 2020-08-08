@@ -140,109 +140,25 @@ class NewsController extends Controller {
 
     public function newsStatusCount(Request $request)
     {
-//        $status=['pre_validated','pre_validation','rejected','archived'];
-        $status = News::select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')
-            ->get();
+
         if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
-            return $status;
+            $status = ['pre_validated','rejected','archived','validated','editorial_committee','sent'];
         }
         $workshop= Workshop::with(['meta' => function($q) {
-            $q->where('user_id', '=','2');
+            $q->where('user_id',Auth::user()->id);
             $q->whereIn('role', [1,2]);
         }])->where('code1' ,'NSL')->first();
         if($workshop){
             if($workshop->meta->count()) {
-                return $status;
+                $status = ['pre_validated','rejected','archived','validated','editorial_committee','sent'];
             }else{
-                $status=News::select('status', DB::raw('count(*) as total'))
-                    ->groupBy('status')->where('status','=','pre_validated')
-                    ->orWhere('status','=','rejected')
-                    ->orWhere('status','=','archived')
-                    ->get();
-                return $status;
+                $status = ['rejected','archived','validated'];
             }
         }
-
-//        $status = News::select('status', DB::raw('count(*) as total'))
-//            ->groupBy('status')
-//            ->get();
-////        if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
-////            $status = ['rejected', 'archived','pre_validated','validated','pre_validation'];
-////            $status=News::select('status', DB::raw('count(*) as total'))
-////                ->groupBy('status')
-////                ->get();
-////            return $status;
-////        }else
-////            {
-//        $workshop = Workshop::where('code1', '=', 'NSL')
-//            ->first();
-////        if ($workshop) {
-//            $workshopId = $workshop->id;
-////            $user_Id=Auth::user()->id;
-//            $workshopDetails = WorkshopMeta::where('user_id', '=', '1')->where('workshop_id', $workshopId)->first();
-////                ->where('workshop_id', $workshopId)
-////                ->where(function ($q) {
-////                    $q->orWhere('role', 1);
-////                    $q->orWhere('role', 2);
-////                })
-//        if ($workshopDetails->role == 1 || $workshopDetails->role == 2) {
-////            $status = ['rejected','pre_validated'];
-////            dd($status);
-//            return $status;
-//        }
-////            dd($workshopDetails);
-////            if ($workshopDetails) {
-////                $status = News::select('status', DB::raw('count(*) as total'))
-////                    ->groupBy('status')
-////                    ->get();
-////                dd($status);
-////                return $status;
-////            }
-////            if ($workshop->role == 1 || $workshop->role == 2) {
-////                $status = ['rejected', 'archived', 'pre_validated', 'validated', 'pre_validation'];
-////                $status = News::select('status', DB::raw('count(*) as total'))
-////                    ->groupBy('status')
-////                    ->get();
-////                return $status;
-////            } elseif ($workshop->role == 0) {
-////                $status = News::select('status', DB::raw('count(*) as total'))
-////                    ->groupBy('status')->where('status', '=', 'pre_validated')
-////                    ->orWhere('status', '=', 'rejected')
-////                    ->orWhere('status', '=', 'archived')
-////                    ->get();
-////                return $status;
-////            }
-//        }
-
-
-//    }
-
-//        if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
-//            $status=News::select('status', DB::raw('count(*) as total'))
-//                ->groupBy('status')
-//                ->get();
-//            return $status;
-//        }else{
-//            $workshop = WorkshopMeta::where('code1','=','NSL')->where('user_id','=','2')
-//                ->first();
-//            if($workshop->role == 1 || $workshop->role == 2){
-//                $status=News::select('status', DB::raw('count(*) as total'))
-//                    ->groupBy('status')
-//                    ->get();
-//                return $status;
-//            }elseif($workshop->role == 0){
-//                $status=News::select('status', DB::raw('count(*) as total'))
-//                    ->groupBy('status')->where('status','=','pre_validated')
-//                    ->orWhere('status','=','rejected')
-//                    ->orWhere('status','=','archived')
-//                    ->get();
-//                return $status;
-//            }
-//        }
-
-//        dd($workshop->role);
-//        return  GroupNewsByStatusResource::collection($status)->additional(['status'=>TRUE]);
+        $status=News::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')->whereIn('status',$status)
+            ->get();
+        return $status;
     }
 
     public function newsToNews_letter(NewsToNewsLetterRequest $request){
