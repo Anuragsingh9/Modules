@@ -10,7 +10,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'newsletter', 'namespace' => 'M
         Route::get('getnews/status','NewsController@newsStatusCount');
         Route::put('update', 'NewsController@update');
         Route::post('transition', 'NewsController@applyTransition');
-//        Route::get('counts', 'NewsController@getCounts'); // to get the counts of news when click on news management
+        Route::get('counts', 'NewsController@getCounts'); // to get the counts of news when click on news management
 //        Route::get('state', 'NewsController@getNews');
         Route::post('newswith/newsLetter', 'NewsController@newsToNews_letter');
 

@@ -31,6 +31,15 @@ class CoreController extends Controller
 //        return $path;
     }
 
+//    public function fileUploadToS3Url($URL) {
+//        $url = $URL;
+//        $contents = file_get_contents($url);
+//        $name = substr($url, strrpos($url, '/') + 1);
+//        $path=Storage::disk('s3')->put($name, $contents);
+//        dd($path);
+//        return $path;
+//    }
+
     public function getS3Parameter($mediaUrl)
     {
         $file_path=$mediaUrl;

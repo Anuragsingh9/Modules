@@ -41,7 +41,9 @@ class NewsService {
      */
     public function createNews($param) {
         $param= $this->uploadNewsMedia($param);
+//        dd($param);
         $news = News::create($param);
+//        dd($news);
         if (!$news) {
             throw new \Exception();
         }
@@ -78,7 +80,8 @@ class NewsService {
      */
     public function uploadNewsMedia($param) {
         $this->core = app(\App\Http\Controllers\CoreController::class);
-        if(isset($param['request_media_type']) && $param['request_media_type']) {
+        if(isset($param['request_media_type'],$param['request_media_url'],$param['request_media_blob'])
+            && $param['request_media_type']&&$param['request_media_url']&&$param['request_media_blob']) {
             if ($param['request_media_type'] == 0) { // video uploading
                 $param ['media_url'] = $param['request_media_url'];
                 $param['media_type'] = 0;
@@ -88,11 +91,16 @@ class NewsService {
                 $param ['media_url'] = $this->core->fileUploadToS3($param['request_media_blob'], $param['request_media_type']);
                 $param['media_thumbnail'] = NUll;
             } else { // media_type == 2 and adobe image uploading so we already have url,
+//                dd($param['request_media_url']);
                 $param['media_type'] = 2;
                 $param ['media_url'] = $param['request_media_url'];
+//                  $param ['media_url'] = $this->core->fileUploadToS3($param['request_media_url'], $param['request_media_type']);
+//                $param ['media_url'] = $this->core->fileUploadToS3Url($param['request_media_url']);
+
                 $param['media_thumbnail'] = NULL;
             }
         }
+//        dd($param);
         return $param;
 
     }

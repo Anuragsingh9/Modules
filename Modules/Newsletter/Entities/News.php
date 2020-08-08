@@ -12,7 +12,7 @@ class News extends Model {
 
     protected $table = 'news_info';
     protected $fillable = [
-        'title', 'header', 'description', 'status', 'created_by', 'media_url', 'media_thumbnail',
+        'title', 'header', 'description', 'status', 'created_by', 'media_url', 'media_thumbnail','media_type'
     ];
 
     public function reviews() {

@@ -32,6 +32,8 @@ class NewsResource extends Resource {
 //                'is_visible'      => $review->is_visible,
 //            ]);
 //        }
+//        dd ($this->media_type);
+//        and media type)
         return [
             'news_id'                 => $this->id,
             'title'                   => $this->title,
@@ -40,8 +42,9 @@ class NewsResource extends Resource {
             'status'                  => $this->status,
             'media_thumbnail'         => $this->media_thumbnail,
             'review_id'               => $this->id,
-            'media_url'               =>$this->core->getS3Parameter($path),
+            'media_url'               => $this->media_type == 2 ? $this->media_url : $this->core->getS3Parameter($path),
             'review_reaction'         => $this->reviewsCountByCategory,
         ];
     }
 }
+

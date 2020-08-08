@@ -45,6 +45,8 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) {
         try {
+//            dd($request->media_url);
+
             DB::beginTransaction();
 
             $param = [
@@ -89,8 +91,8 @@ class NewsController extends Controller {
                 'header'          => $request->header,
                 'description'     => $request->description,
                 'request_media_type'      => $request->has('media_type') ? $request->has('media_type')  : null,
-                'request_media_url'       => $request->media_url,
-                'request_media_blob'      => $request->media_blob,
+                'request_media_url'       => $request->has('media_url') ? $request->has('media_url')  : null,
+                'request_media_blob'      => $request->has('media_blob') ? $request->has('media_blob')  : null,
             ];
             $news = $this->newsService->update($request->news_id, $param);
             DB::commit();
@@ -132,7 +134,7 @@ class NewsController extends Controller {
         $role = 0;
         if ($role !== NULL && $request->has('state')) {
             $news = $this->newsService->getNewsByState($request->state);
-            return $news->count() ? NewsResource::collection($news) : response()->json(['status' => TRUE, 'data' => ''], 200);
+            return $news->count() ? NewsResource::collection($news) : response()->json(['status' => TRUE, 'data' => $news], 200);
         } else {
             return response()->json(['status' => FALSE, 'data' => ''], 200);
         }
@@ -158,7 +160,7 @@ class NewsController extends Controller {
         $status=News::select('status', DB::raw('count(*) as total'))
             ->groupBy('status')->whereIn('status',$status)
             ->get();
-        return $status;
+        return response()->json(['status' => TRUE, 'data' => $status], 200);
     }
 
     public function newsToNews_letter(NewsToNewsLetterRequest $request){
