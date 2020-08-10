@@ -56,26 +56,12 @@ class ReviewController extends Controller {
         try {
             $news = News::with('reviews')->find($news);
             return ReviewResource::collection($news->reviews)->additional(['status' => TRUE]);
-//            return $news;
         } catch (\Exception $e) {
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
         }
     }
     
-//    public function addDescription(ReviewDescriptionRequest $request) {
-//        try {
-//            DB::beginTransaction();
-//
-//            $param = ['review_text' => $request->description,];
-//            $review = $this->service->update($param, $request->newsId);
-//
-//            DB::commit();
-//            return (new ReviewResource($review))->additional(['status' => TRUE]);
-//        } catch (\Exception $e) {
-//            DB::rollback();
-//            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error'], 500);
-//        }
-//    }
+
     
     public function send(ReviewSendRequest $request) {
         try {
@@ -90,17 +76,7 @@ class ReviewController extends Controller {
         }
     } 
     
-//    public function getReviews(Request $request) {
-//        try {
-//            $news = News::with('reviews')->find($request->news_id);
-//            if ($news) {
-//                return ReviewResource::collection($news->reviews)->additional(['status' => TRUE]);
-//            }
-//            return response()->json(['status' => TRUE, 'data' => NULL], 200);
-//        } catch (\Exception $e) {
-//            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error'], 500);
-//        }
-//    }
+
     
     public function getReviewsCount(Request $request) {
         try {
@@ -111,18 +87,7 @@ class ReviewController extends Controller {
         }
     }
     
-//    public function getUserReview(Request $request) {
-//        try {
-//            $review = NewsReview::where([
-//                'reviewable_id'   => $request->news_id,
-//                'reviewable_type' => News::class,
-//                'reviewed_by'     => Auth::user()->id
-//            ]);
-//            return response()->json(['status' => TRUE, 'data' => $review], 200);
-//        } catch (\Exception $e) {
-//            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error'], 500);
-//        }
-//    }
+
 
     public function searchNews(Request $request,$title) {
         try {
@@ -140,7 +105,6 @@ class ReviewController extends Controller {
             $result=News::with('reviewsCountByvisible')->get();
             return ReviewByVissibleResource::collection($result)->additional(['status' => TRUE]);
 
-//            return response()->json(['status' => TRUE, 'data' => $result], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
         }

@@ -14,14 +14,7 @@ use Symfony\Component\Workflow\Transition;
 use Workflow;
 
 class NewsService {
-    
-//    private $tenancy;
 
-//    public function __construct() {
-//
-////        $this->tenancy = app(\Hyn\Tenancy\Environment::class);
-//    }
-    
     /**
      * @return NewsService
      */
@@ -41,9 +34,7 @@ class NewsService {
      */
     public function createNews($param) {
         $param= $this->uploadNewsMedia($param);
-//        dd($param);
         $news = News::create($param);
-//        dd($news);
         if (!$news) {
             throw new \Exception();
         }
@@ -51,9 +42,6 @@ class NewsService {
     }
     public function getNewsByStatus($status){
         $news=News::where('status',$status)->get();
-        if (!$news) {
-            throw new \Exception();
-        }
         return $news;
     }
     
@@ -65,11 +53,8 @@ class NewsService {
      */
     public function update($id, $param) {
         $param= $this->uploadNewsMedia($param);
-
-        $news = News::find($id);
-        if (!$news->update($param))
-            throw new Exception();
-        return $news;
+        $news = News::where('id', $id)->update($param);
+        return  News::find($id);
     }
 
     /**
@@ -80,8 +65,7 @@ class NewsService {
      */
     public function uploadNewsMedia($param) {
         $this->core = app(\App\Http\Controllers\CoreController::class);
-        if(isset($param['request_media_type'],$param['request_media_url'],$param['request_media_blob'])
-            && $param['request_media_type']&&$param['request_media_url']&&$param['request_media_blob']) {
+        if(isset($param['request_media_type'])) {
             if ($param['request_media_type'] == 0) { // video uploading
                 $param ['media_url'] = $param['request_media_url'];
                 $param['media_type'] = 0;
@@ -91,38 +75,14 @@ class NewsService {
                 $param ['media_url'] = $this->core->fileUploadToS3($param['request_media_blob'], $param['request_media_type']);
                 $param['media_thumbnail'] = NUll;
             } else { // media_type == 2 and adobe image uploading so we already have url,
-//                dd($param['request_media_url']);
                 $param['media_type'] = 2;
                 $param ['media_url'] = $param['request_media_url'];
-//                  $param ['media_url'] = $this->core->fileUploadToS3($param['request_media_url'], $param['request_media_type']);
-//                $param ['media_url'] = $this->core->fileUploadToS3Url($param['request_media_url']);
-
                 $param['media_thumbnail'] = NULL;
             }
         }
-//        dd($param);
+        unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
         return $param;
 
-    }
-
-    /**
-     * @param $blob
-     * @param string $type
-     * @return string
-     */
-    public function updateNewsMedia($blob, $type) {
-
-        $path='public';
-//        $hostname = $this->tenancy->hostname()->fqdn;
-//        $path = 'ooionline/' . $hostname . '/workshop/news_moderation/';
-//        $path .= (($type == 'thumbnail') ? 'video_thumbnails/' : '/news_image/');
-        $fileName = time() . '.' . $blob->getClientOriginalExtension();
-        $path=Storage::disk('s3')
-            ->putFileAs($path, $blob, $fileName, 'public'); // to put the file on specific path with custom name,
-//         $path=Storage::disk('s3')->url($path . $fileName); // giving path and filename will return its url,
-//        dd($path);
-
-        return $path;
     }
 
     /**
@@ -132,7 +92,6 @@ class NewsService {
      */
     public function applyTransitions($newsId, $transitionName,$newsLetter) {
         $news = News::findOrFail($newsId);
-//    dd($transitionName);
         $workflow = Workflow::get($news,'news_status');
 
         $workflow->apply($news, $transitionName);
@@ -149,37 +108,22 @@ class NewsService {
     /**
      * @return integer|null
      */
-    public function getCurrentUserRole() {
-//        $checkMeta = function ($q) {
-//            $q->where('user_id', Auth::user()->id);
-//            $q->where('role', '!=', 3);
-//            $q->select('id', 'workshop_id', 'role');
-//        };
-//        $workshop = WorkshopMeta::with(['meta' => $checkMeta])
-//            ->whereHas('meta', $checkMeta)
-//            ->where('code1', 'NSL')
-//            ->select('id', 'code1')
-//            ->first();
-//        if ($workshop) {
-//            return $workshop->meta->first()->role;
-//        }
-//        return NULL;
-    }
 
     public function getNewsByState($state) {
+
         return News::where('status', $state)->get();
     }
 
     public function newsWithNews_letter($newsId,$newsLetter_id){
+
         $news = News::find($newsId);
         $param=[
-            'news_id'=>$newsId,
-            'newsletter_id'=>$newsLetter_id,
+            'news_id'       =>$newsId,
+            'newsletter_id' =>$newsLetter_id,
         ];
         Newsletter::create($param);
         return $news;
     }
-    
     
 }
 

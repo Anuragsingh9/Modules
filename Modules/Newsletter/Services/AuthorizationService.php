@@ -20,8 +20,6 @@ class AuthorizationService extends Service{
 
 
         $workshop = WorkshopMeta::get();
-        dd($workshop);
-
         $user_id = Auth::user()->id;
 
     }

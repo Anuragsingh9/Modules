@@ -20,9 +20,6 @@ class NewsToNewsLetterRequest extends FormRequest
                     $query->where('status', 'validated')->whereNull('deleted_at');
                 }),
             ],
-//            'newsLetter_id'=>['required',
-//                Rule::exists('newsletter','id')
-//            ]
         ];
     }
 

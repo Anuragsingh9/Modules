@@ -24,21 +24,7 @@ class CoreController extends Controller
         $path=Storage::disk('s3')
             ->putFileAs($path, $blob, $fileName, 'public'); // to put the file on specific path with custom name,
         return $path;
-//        $filePath='public';
-//        $image= $blob;
-////        $visibility=$request->visibility;
-//        $path = Storage::disk('s3')->put( $image,$filePath);
-//        return $path;
     }
-
-//    public function fileUploadToS3Url($URL) {
-//        $url = $URL;
-//        $contents = file_get_contents($url);
-//        $name = substr($url, strrpos($url, '/') + 1);
-//        $path=Storage::disk('s3')->put($name, $contents);
-//        dd($path);
-//        return $path;
-//    }
 
     public function getS3Parameter($mediaUrl)
     {

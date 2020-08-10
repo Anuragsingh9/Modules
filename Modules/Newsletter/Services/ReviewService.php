@@ -26,18 +26,6 @@ class ReviewService {
      * @throws Exception
      */
     public function create($param, $newsId) {
-
-//        $news = News::find($newsId);
-//        $review = $news
-//            ->review()
-//            ->where(['reviewable_id'   => $newsId,
-//                     'reviewed_by'     => Auth::user()->id,
-//                     'reviewable_type' => News::class,
-//            ])->get();
-//        if ($review->count())
-//            return $review;
-//        dd($param);
-
         $review = NewsReview::create(
             $param);
 

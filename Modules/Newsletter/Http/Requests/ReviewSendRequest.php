@@ -29,16 +29,6 @@ class ReviewSendRequest extends FormRequest {
      * @return bool
      */
     public function authorize() {
-//        if (!in_array(Auth::user()->role, ['M1', 'M0'])) {
-//            if ($this->review_id) {
-//                $review = NewsReview::find($this->review_id);
-//                if ($review) { // do not combine these if with && sign
-//                    if ($review->reviewed_by != Auth::user()->id) {
-//                        return FALSE;
-//                    }
-//                }
-//            }
-//        }
         return TRUE;
     }
 }

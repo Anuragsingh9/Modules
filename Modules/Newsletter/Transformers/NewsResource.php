@@ -8,12 +8,6 @@ use Illuminate\Http\Resources\Json\Resource;
 use Modules\Newsletter\Services\NewsService;
 
 class NewsResource extends Resource {
-//    private $core;
-//
-//    public function __construct() {
-//
-//        $this->core = CoreController::getInstance();
-//    }
 
 
     /**
@@ -24,16 +18,6 @@ class NewsResource extends Resource {
         $this->core = app(\App\Http\Controllers\CoreController::class);
         $path                     = $this->media_url;
 
-//        $reviews = [];
-//        foreach($this->reviews as $review){
-//            array_push($reviews, [
-//                'review_id'       => $review->id,
-//                'review_text'     => $review->review_text,
-//                'is_visible'      => $review->is_visible,
-//            ]);
-//        }
-//        dd ($this->media_type);
-//        and media type)
         return [
             'news_id'                 => $this->id,
             'title'                   => $this->title,

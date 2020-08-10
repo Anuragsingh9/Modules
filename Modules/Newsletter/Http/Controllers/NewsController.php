@@ -25,16 +25,6 @@ use Symfony\Component\Workflow\Registry;
 class NewsController extends Controller {
     private $newsService;
 
-    /*
-        try {
-            DB::connection('tenant')->beginTransaction();
-
-            DB::connection('tenant')->commit();
-        } catch (\Exception $e) {
-            DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error ',], 200);
-        }
-    */
     public function __construct() {
 
         $this->newsService = NewsService::getInstance();
@@ -85,21 +75,22 @@ class NewsController extends Controller {
 
     public function update(NewsUpdateRequest $request) {
         try {
+
             DB::beginTransaction();
             $param = [
                 'title'           => $request->title,
                 'header'          => $request->header,
                 'description'     => $request->description,
-                'request_media_type'      => $request->has('media_type') ? $request->has('media_type')  : null,
-                'request_media_url'       => $request->has('media_url') ? $request->has('media_url')  : null,
-                'request_media_blob'      => $request->has('media_blob') ? $request->has('media_blob')  : null,
+                'request_media_type'      => $request->has('media_type') ? $request->media_type  : null,
+                'request_media_url'       => $request->has('media_url') ? $request->media_url  : null,
+                'request_media_blob'      => $request->has('media_blob') ? $request->media_blob  : null,
             ];
             $news = $this->newsService->update($request->news_id, $param);
             DB::commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error',], 200);
+            return response()->json(['status' => FALSE, 'msg' => $e->getMessage()], 200);
         }
     }
 
@@ -174,9 +165,5 @@ class NewsController extends Controller {
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }
-
-
-
-
 }
 
