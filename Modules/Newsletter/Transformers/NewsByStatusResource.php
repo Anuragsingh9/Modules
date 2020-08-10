@@ -22,6 +22,5 @@ class NewsByStatusResource extends Resource {
                 'status'                  => $this->status,
                 'created_by'              => $this->created_by,
             ];
-
     }
 }

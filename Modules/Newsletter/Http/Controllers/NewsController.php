@@ -35,19 +35,16 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) {
         try {
-//            dd($request->media_url);
-
             DB::beginTransaction();
-
             $param = [
-                'title'           => $request->title,
-                'header'          => $request->header,
-                'description'     => $request->description,
-                'status'          => $request->status, // default status,
-                'created_by'      => 2,
-                'request_media_type'      => $request->media_type,
-                'request_media_url'       => $request->media_url,
-                'request_media_blob'      => $request->media_blob,
+                'title'                     => $request->title,
+                'header'                    => $request->header,
+                'description'               => $request->description,
+                'status'                    => $request->status, // default status,
+                'created_by'                => Auth::user()->id,
+                'request_media_type'        => $request->media_type,
+                'request_media_url'         => $request->media_url,
+                'request_media_blob'        => $request->media_blob,
             ];
             $news = $this->newsService->createNews($param);
             DB::commit();
@@ -58,12 +55,12 @@ class NewsController extends Controller {
         }
     }
 
-    public function getNewss(Request $request,$status){
+    public function getNewss(Request $request){
         try{
+            $status=$request->status;
             DB::beginTransaction();
             $news=$this->newsService->getNewsByStatus($status);
             DB::commit();
-
             return  NewsByStatusResource::collection($news)->additional(['status'=>TRUE]);
         }catch (\Exception $e){
             DB::rollback();
@@ -75,15 +72,14 @@ class NewsController extends Controller {
 
     public function update(NewsUpdateRequest $request) {
         try {
-
             DB::beginTransaction();
             $param = [
-                'title'           => $request->title,
-                'header'          => $request->header,
-                'description'     => $request->description,
-                'request_media_type'      => $request->has('media_type') ? $request->media_type  : null,
-                'request_media_url'       => $request->has('media_url') ? $request->media_url  : null,
-                'request_media_blob'      => $request->has('media_blob') ? $request->media_blob  : null,
+                'title'                     => $request->title,
+                'header'                    => $request->header,
+                'description'               => $request->description,
+                'request_media_type'        => $request->has('media_type') ? $request->media_type  : null,
+                'request_media_url'         => $request->has('media_url') ? $request->media_url  : null,
+                'request_media_blob'        => $request->has('media_blob') ? $request->media_blob  : null,
             ];
             $news = $this->newsService->update($request->news_id, $param);
             DB::commit();
@@ -103,7 +99,6 @@ class NewsController extends Controller {
             DB::beginTransaction();
             $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsLetter);
             DB::commit();
-
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::rollback();
@@ -120,20 +115,9 @@ class NewsController extends Controller {
         return 'not here';
     }
 
-    public function getNews(Request $request) {
-        $role = $this->newsService->getCurrentUserRole();
-        $role = 0;
-        if ($role !== NULL && $request->has('state')) {
-            $news = $this->newsService->getNewsByState($request->state);
-            return $news->count() ? NewsResource::collection($news) : response()->json(['status' => TRUE, 'data' => $news], 200);
-        } else {
-            return response()->json(['status' => FALSE, 'data' => ''], 200);
-        }
-    }
 
     public function newsStatusCount(Request $request)
     {
-
         if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
             $status = ['pre_validated','rejected','archived','validated','editorial_committee','sent'];
         }

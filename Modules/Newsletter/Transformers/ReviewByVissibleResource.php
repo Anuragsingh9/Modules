@@ -20,8 +20,8 @@ class ReviewByVissibleResource extends Resource {
             'header'                  => $this->header,
             'description'             => $this->description,
             'status'                  => $this->status,
-            'review_id'       => $this->id,
-            'reviewsCountByvisible' => $this->reviewsCountByvisible,
+            'review_id'               => $this->id,
+            'reviewsCountByvisible'   => $this->reviewsCountByvisible,
             ];
 
     }

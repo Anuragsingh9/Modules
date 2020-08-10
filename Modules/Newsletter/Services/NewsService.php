@@ -1,7 +1,6 @@
 <?php
 
 namespace Modules\Newsletter\Services;
-
 use App\Workshop;
 use App\WorkshopMeta;
 use Illuminate\Database\Eloquent\Builder;
@@ -79,8 +78,8 @@ class NewsService {
                 $param ['media_url'] = $param['request_media_url'];
                 $param['media_thumbnail'] = NULL;
             }
+            unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
         }
-        unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
         return $param;
 
     }
@@ -93,9 +92,7 @@ class NewsService {
     public function applyTransitions($newsId, $transitionName,$newsLetter) {
         $news = News::findOrFail($newsId);
         $workflow = Workflow::get($news,'news_status');
-
         $workflow->apply($news, $transitionName);
-
         $news->save();
         $param=[
             'news_id'=>$newsId,
