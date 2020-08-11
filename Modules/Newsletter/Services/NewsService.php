@@ -52,6 +52,7 @@ class NewsService {
      */
     public function update($id, $param) {
         $param= $this->uploadNewsMedia($param);
+//        dd($param);
         $news = News::where('id', $id)->update($param);
         return  News::find($id);
     }
@@ -69,17 +70,18 @@ class NewsService {
                 $param ['media_url'] = $param['request_media_url'];
                 $param['media_type'] = 0;
                 $param['media_thumbnail'] = $this->core->fileUploadToS3($param['request_media_blob']);
-            } else if ($param['request_media_type'] == 1) { // image from system uploading
+            } elseif ($param['request_media_type'] == 1) { // image from system uploading
                 $param['media_type'] = 1;
                 $param ['media_url'] = $this->core->fileUploadToS3($param['request_media_blob'], $param['request_media_type']);
                 $param['media_thumbnail'] = NUll;
-            } else { // media_type == 2 and adobe image uploading so we already have url,
+            } else{ // media_type == 2 and adobe image uploading so we already have url,
                 $param['media_type'] = 2;
                 $param ['media_url'] = $param['request_media_url'];
                 $param['media_thumbnail'] = NULL;
             }
             unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
         }
+//        dd($param);
         return $param;
 
     }
@@ -111,7 +113,7 @@ class NewsService {
         return News::where('status', $state)->get();
     }
 
-    public function newsWithNews_letter($newsId,$newsLetter_id){
+    public function newsWithNewsLetters($newsId,$newsLetter_id){
 
         $news = News::find($newsId);
         $param=[

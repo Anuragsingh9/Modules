@@ -4,6 +4,9 @@ namespace Modules\Newsletter\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Newsletter\Services\AuthorizationService;
+use Modules\Newsletter\Services\AuthorizationsService;
+
 //use Modules\Newsletter\Entities\News;
 //use Modules\Newsletter\Rules\CheckTransitionAvailableRule;
 //use Symfony\Component\Workflow\Transition;
@@ -33,8 +36,6 @@ class WorkflowTransitionRequest extends FormRequest {
      * @return bool
      */
     public function authorize() {
-
-        return true;
-
+        return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([1,2]);
     }
 }

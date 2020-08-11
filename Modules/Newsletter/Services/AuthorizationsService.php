@@ -20,23 +20,16 @@ class AuthorizationsService extends Service{
         return $instance;
     }
 
-    public function isUserBelongsToWorkshop(){
-
+    public function isUserBelongsToWorkshop($role){
         if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
             return true;
         }else{
-        $workshop = Workshop::with('meta')
-            ->where('code1','=','NSL')
-            ->first();
+            $workshop = Workshop::with(['meta' => function($q) {
+            $q->where('user_id',Auth::user()->id);
+        }])->where('code1','=','NSL')
+           ->where('role',$role)->first();
         if($workshop){
-            $workshopId=$workshop->id;
-            $user_Id=Auth::user()->id;
-            $workshopDetails=WorkshopMeta::where('user_id',$user_Id)
-                ->where('workshop_id',$workshopId)
-                ->where(function($q) {
-                    $q->orWhere('role',1);
-                    $q->orWhere('role',2);
-                })->first();
+            $workshopDetails=$workshop->meta->count();
             if($workshopDetails){
                 return true;
             }
@@ -54,9 +47,8 @@ class AuthorizationsService extends Service{
         }elseif(Auth::user()->id == $news->created_by){
             return true;
         }else{
-            return $this->isUserBelongsToWorkshop();
+            return $this->isUserBelongsToWorkshop([0,1,2]);
         }
-
     }
 
 

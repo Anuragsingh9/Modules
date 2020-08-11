@@ -6,8 +6,12 @@ use App\Workshop;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Modules\Newsletter\Services\AuthorizationService;
+use Modules\Newsletter\Services\AuthorizationsService;
 
 class NewsCreateRequest extends FormRequest {
+
+
     /**
      * @return array
      */
@@ -27,6 +31,6 @@ class NewsCreateRequest extends FormRequest {
      * @return bool
      */
     public function authorize() {
-                return true;
+        return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([1,2]);
     }
 }

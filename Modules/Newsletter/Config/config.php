@@ -8,4 +8,7 @@ return [
                  'description'=>'50',
              ],
          ],
+        's3'=>[
+            'news_image'=>'public/anurag',
+        ],
 ];

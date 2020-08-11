@@ -10,7 +10,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'newsletter', 'namespace' => 'M
         Route::get('getnews/status','NewsController@newsStatusCount');
         Route::post('update', 'NewsController@update');
         Route::post('transition', 'NewsController@applyTransition');
-        Route::post('newswith/newsLetter', 'NewsController@newsToNews_letter');
+        Route::post('newswith/newsLetter', 'NewsController@newsWithNewsLetter');
 
         Route::group(['prefix' => 'review'], function () {
             Route::post('review/create', 'ReviewController@store'); // form request
@@ -21,7 +21,6 @@ Route::group(['middleware' => 'web', 'prefix' => 'newsletter', 'namespace' => 'M
             Route::get('review/count/vissible','ReviewController@countReviewBySent');
             Route::get('checkworkshop','ReviewController@checkWorkshopUser');
             Route::get('checknews','ReviewController@isBelongsToNews');
-
         });
     });
 });

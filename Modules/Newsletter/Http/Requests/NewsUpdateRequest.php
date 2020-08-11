@@ -4,6 +4,8 @@ namespace Modules\Newsletter\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Newsletter\Services\AuthorizationService;
+use Modules\Newsletter\Services\AuthorizationsService;
 
 class NewsUpdateRequest extends FormRequest {
     /**
@@ -18,7 +20,7 @@ class NewsUpdateRequest extends FormRequest {
             'title'       => 'required|string|max:' . config('newsletter.validations.news.title'),
             'header'      => 'required|string|max:' . config('newsletter.validations.news.header'),
             'description' => 'required|string|max:' . config('newsletter.validations.news.description'),
-            'media_type'  => 'required|in:0,1,2', // 0 for video, 1 for system image, 2 image from adobe
+            'media_type'  => 'in:0,1,2|nullable', // 0 for video, 1 for system image, 2 image from adobe
             'media_url'   => 'required_if:media_type,0,2|url', // url need for video or adobe image
             'media_blob'  => 'required_if:media_type,0,1|image', // required for video thumbnail or image upload
         ];
@@ -28,6 +30,6 @@ class NewsUpdateRequest extends FormRequest {
      * @return bool
      */
     public function authorize() {
-        return TRUE;
+        return AuthorizationsService::getInstance()->isUserBelongsToNews($this->news_id);
     }
 }

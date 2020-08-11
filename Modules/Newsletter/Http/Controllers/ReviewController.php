@@ -29,13 +29,14 @@ class ReviewController extends Controller {
         $this->service = ReviewService::getInstance();
         $this->authService = AuthorizationsService::getInstance();
     }
-    
+
     public function store(ReviewAddRequest $request) {
         try {
             DB::beginTransaction();
-
             $param =
-                ['review_reaction' => $request->review_reaction,
+                [
+                 'review_reaction' => $request->review_reaction,
+                  'review_text'    =>$request->review_text,
                  'is_visible'      => 1, //  as requirement says send when click on send button
                  'reviewed_by'     => Auth::user()->id,
                  'reviewable_id'   => $request->news_id,
@@ -110,9 +111,9 @@ class ReviewController extends Controller {
         }
     }
 
-    public function checkWorkshopUser(){
+    public function checkWorkshopUser(Request $request){
 
-        $this->authService->isUserBelongsToWorkshop();
+        $this->authService->isUserBelongsToWorkshop($request->role);
     }
 
     public function isBelongsToNews(Request $request){

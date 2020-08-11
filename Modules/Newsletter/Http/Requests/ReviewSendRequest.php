@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Entities\NewsReview;
+use Modules\Newsletter\Services\AuthorizationService;
+use Modules\Newsletter\Services\AuthorizationsService;
 
 class ReviewSendRequest extends FormRequest {
     /**
@@ -29,6 +31,6 @@ class ReviewSendRequest extends FormRequest {
      * @return bool
      */
     public function authorize() {
-        return TRUE;
+        return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
     }
 }

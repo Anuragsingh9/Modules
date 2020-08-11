@@ -77,10 +77,16 @@ class NewsController extends Controller {
                 'title'                     => $request->title,
                 'header'                    => $request->header,
                 'description'               => $request->description,
-                'request_media_type'        => $request->has('media_type') ? $request->media_type  : null,
-                'request_media_url'         => $request->has('media_url') ? $request->media_url  : null,
-                'request_media_blob'        => $request->has('media_blob') ? $request->media_blob  : null,
-            ];
+                ];
+            if($request->has('media_type')){
+                $params = [
+                    'request_media_type'        => $request->has('media_type') ? $request->media_type  : null,
+                    'request_media_url'         => $request->has('media_url') ? $request->media_url  : null,
+                    'request_media_blob'        => $request->has('media_blob') ? $request->media_blob  : null,
+                ];
+            }if(isset($params)){
+                $param = array_merge($param, $params);
+            }
             $news = $this->newsService->update($request->news_id, $param);
             DB::commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
@@ -138,10 +144,10 @@ class NewsController extends Controller {
         return response()->json(['status' => TRUE, 'data' => $status], 200);
     }
 
-    public function newsToNews_letter(NewsToNewsLetterRequest $request){
+    public function newsWithNewsLetter(NewsToNewsLetterRequest $request){
         try {
             DB::beginTransaction();
-            $news = $this->newsService->newsWithNews_letter($request->news_id,$request->newsLetter_id);
+            $news = $this->newsService->newsWithNewsLetters($request->news_id,$request->newsLetter_id);
             DB::commit();
             return $news;
         } catch (\Exception $e) {

@@ -18,8 +18,7 @@ class CoreController extends Controller
 
     public function fileUploadToS3($blob,$type)
     {
-        $path='public';
-
+        $path = config('newsletter.s3.news_image');
         $fileName = time() . '.' . $blob->getClientOriginalExtension();
         $path=Storage::disk('s3')
             ->putFileAs($path, $blob, $fileName, 'public'); // to put the file on specific path with custom name,

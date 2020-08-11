@@ -4,6 +4,8 @@ namespace Modules\Newsletter\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Newsletter\Services\AuthorizationService;
+use Modules\Newsletter\Services\AuthorizationsService;
 
 class NewsToNewsLetterRequest extends FormRequest
 {
@@ -30,6 +32,6 @@ class NewsToNewsLetterRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([1,2]);
     }
 }
