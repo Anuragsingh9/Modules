@@ -4,10 +4,7 @@ namespace Modules\Newsletter\Entities;
 
 use App\User;
 use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
-<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Model;
-=======
->>>>>>> 84e645e67d9bc1c703171fb8a79448f166238bd8
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NewsReview extends TenancyModel {

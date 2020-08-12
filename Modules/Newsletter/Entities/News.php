@@ -4,10 +4,7 @@ namespace Modules\Newsletter\Entities;
 
 use Brexis\LaravelWorkflow\Traits\WorkflowTrait;
 use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
-<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Model;
-=======
->>>>>>> 84e645e67d9bc1c703171fb8a79448f166238bd8
 use Illuminate\Support\Facades\DB;
 
 class News extends TenancyModel {

@@ -9,5 +9,5 @@ class Newsletter extends TenancyModel
 {
     protected $table = 'news_newsletter';
 
-    protected $fillable = ['news_id','id'];
+    protected $fillable = ['news_id','news_newsletter'];
 }
