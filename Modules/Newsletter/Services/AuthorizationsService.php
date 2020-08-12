@@ -24,10 +24,10 @@ class AuthorizationsService extends Service{
         if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
             return true;
         }else{
-            $workshop = Workshop::with(['meta' => function($q) {
-            $q->where('user_id',Auth::user()->id);
-        }])->where('code1','=','NSL')
-           ->where('role',$role)->first();
+            $workshop = Workshop::with(['meta' => function($q) use ($role) {
+                $q->where('user_id',Auth::user()->id);
+            $q->whereIn('role',$role);
+        }])->where('code1','=','NSL') ->first();
         if($workshop){
             $workshopDetails=$workshop->meta->count();
             if($workshopDetails){

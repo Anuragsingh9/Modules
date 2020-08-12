@@ -20,8 +20,8 @@ class CreateNewsTable extends Migration
             $table->string('description');
             $table->string('status');
             $table->unsignedInteger('created_by');
-            $table->tinyInteger('media_type');
-            $table->string('media_url');
+            $table->tinyInteger('media_type')->nullable();
+            $table->string('media_url')->nullable();
             $table->string('media_thumbnail')->nullable();
             $table->tinyInteger('is_send_with_newsletter')->default(0);
             $table->timestamps();
