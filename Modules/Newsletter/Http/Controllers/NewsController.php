@@ -35,9 +35,8 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) {
         try {
-
             DB::connection('tenant')->beginTransaction();
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $param = [
                 'title'              => $request->title,
                 'header'             => $request->header,
@@ -63,7 +62,7 @@ class NewsController extends Controller {
             $status=$request->status;
             DB::connection('tenant')->beginTransaction();
             $news=$this->newsService->getNewsByStatus($status);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new NewsResource($news))->additional(['status' => true]);
         }catch (\Exception $e){
             DB::connection('tenant')->rollback();
@@ -154,12 +153,12 @@ class NewsController extends Controller {
     
     public function newsWithNewsLetter(NewsToNewsLetterRequest $request) {
         try {
-            DB::connection('tenant')->connection('tenant')->beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $news = $this->newsService->newsWithNewsLetters($request->news_id,$request->newsLetter_id);
-            DB::connection('tenant')->connection('tenant')->commit();
+            DB::connection('tenant')->commit();
             return $news;
         } catch (\Exception $e) {
-            DB::connection('tenant')->connection('tenant')->rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }
