@@ -3,12 +3,10 @@
 namespace Modules\Newsletter\Entities;
 
 use App\User;
-//use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
-use Illuminate\Database\Eloquent\Model;
+use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 
-class NewsReview extends Model {
+class NewsReview extends TenancyModel {
     use SoftDeletes;
     
     protected $fillable = [
@@ -19,15 +17,17 @@ class NewsReview extends Model {
         'reviewable_id',
         'reviewable_type'
     ];
-
+    
     public function reviewable() {
         return $this->morphTo();
     }
-     public function news(){
-         return $this->belongsTo(News::class);
-     }
+    
+    public function news() {
+        return $this->belongsTo(News::class);
+    }
+    
     public function reviewer() {
         return $this->hasOne(User::class, 'id', 'reviewed_by');
     }
-
+    
 }

@@ -9,6 +9,6 @@ return [
              ],
          ],
         's3'=>[
-            'news_image'=>'public/anurag',
+            'news_image'=>'/news/image',
         ],
 ];

@@ -8,5 +8,5 @@ class Newsletter extends Model
 {
     protected $table = 'news_newsletter';
 
-    protected $fillable = ['news_id','newsletter_id'];
+    protected $fillable = ['news_id','id'];
 }
