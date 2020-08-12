@@ -35,6 +35,7 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) {
         try {
+            // add connection here
             DB::beginTransaction();
             $param = [
                 'title'              => $request->title,
