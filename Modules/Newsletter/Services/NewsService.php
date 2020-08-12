@@ -52,7 +52,6 @@ class NewsService {
      */
     public function update($id, $param) {
         $param= $this->uploadNewsMedia($param);
-//        dd($param);
         $news = News::where('id', $id)->update($param);
         return  News::find($id);
     }
@@ -81,7 +80,6 @@ class NewsService {
             }
             unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
         }
-//        dd($param);
         return $param;
 
     }

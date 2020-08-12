@@ -24,6 +24,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'newsletter', 'namespace' => 'M
         });
     });
 });
+
 Route::group(['middleware' => 'web', 'prefix' => 'newsletter/news/aws','namespace' => 'App\Http\Controllers'], function(){
     Route::post('fileupload','CoreController@fileUploadToS3');
     Route::post('filedownload','CoreController@getS3Parameter');

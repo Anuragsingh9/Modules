@@ -2,12 +2,12 @@
 
 namespace Modules\Newsletter\Services;
 use App\User;
+use App\Workshop;
 use http\Env\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Service;
 use Modules\Newsletter\Entities\News;
-use Modules\Newsletter\Entities\Workshop;
-use Modules\Newsletter\Entities\WorkshopMeta;
+use App\WorkshopMeta;
 
 class AuthorizationsService extends Service{
 

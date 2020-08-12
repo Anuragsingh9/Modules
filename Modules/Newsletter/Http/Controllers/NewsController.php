@@ -9,15 +9,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Modules\Newsletter\Entities\News;
-use Modules\Newsletter\Entities\Workshop;
-use Modules\Newsletter\Entities\WorkshopMeta;
+use App\Workshop;
+use App\WorkshopMeta;
 use Modules\Newsletter\Http\Requests\NewsCreateRequest;
 use Modules\Newsletter\Http\Requests\NewsToNewsLetterRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
 use Modules\Newsletter\Services\NewsService;
 use Modules\Newsletter\Transformers\GroupNewsByStatusResource;
-use Modules\Newsletter\Transformers\NewsByStatus;
 use Modules\Newsletter\Transformers\NewsByStatusResource;
 use Modules\Newsletter\Transformers\NewsResource;
 use Symfony\Component\Workflow\Registry;
@@ -35,7 +34,7 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) {
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $param = [
                 'title'                     => $request->title,
                 'header'                    => $request->header,
@@ -47,10 +46,10 @@ class NewsController extends Controller {
                 'request_media_blob'        => $request->media_blob,
             ];
             $news = $this->newsService->createNews($param);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }
@@ -58,12 +57,12 @@ class NewsController extends Controller {
     public function getNewss(Request $request){
         try{
             $status=$request->status;
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $news=$this->newsService->getNewsByStatus($status);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return  NewsByStatusResource::collection($news)->additional(['status'=>TRUE]);
         }catch (\Exception $e){
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
 
         }
@@ -72,7 +71,7 @@ class NewsController extends Controller {
 
     public function update(NewsUpdateRequest $request) {
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $param = [
                 'title'                     => $request->title,
                 'header'                    => $request->header,
@@ -88,10 +87,10 @@ class NewsController extends Controller {
                 $param = array_merge($param, $params);
             }
             $news = $this->newsService->update($request->news_id, $param);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => $e->getMessage()], 200);
         }
     }
@@ -102,12 +101,12 @@ class NewsController extends Controller {
      */
     public function applyTransition(WorkflowTransitionRequest $request) {
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsLetter);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }
@@ -124,34 +123,41 @@ class NewsController extends Controller {
 
     public function newsStatusCount(Request $request)
     {
-        if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
-            $status = ['pre_validated','rejected','archived','validated','editorial_committee','sent'];
-        }
-        $workshop= Workshop::with(['meta' => function($q) {
-            $q->where('user_id',Auth::user()->id);
-            $q->whereIn('role', [1,2]);
-        }])->where('code1' ,'NSL')->first();
-        if($workshop){
-            if($workshop->meta->count()) {
+        try {
+            DB::connection('tenant')->beginTransaction();
+            if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
                 $status = ['pre_validated','rejected','archived','validated','editorial_committee','sent'];
-            }else{
-                $status = ['rejected','archived','validated'];
             }
+            $workshop= Workshop::with(['meta' => function($q) {
+                $q->where('user_id',Auth::user()->id);
+                $q->whereIn('role', [1,2]);
+            }])->where('code1' ,'NSL')->first();
+            if($workshop){
+                if($workshop->meta->count()) {
+                    $status = ['pre_validated','rejected','archived','validated','editorial_committee','sent'];
+                }else{
+                    $status = ['rejected','archived','validated'];
+                }
+            }
+            $status=News::select('status', DB::raw('count(*) as total'))
+                ->groupBy('status')->whereIn('status',$status)->get();
+            DB::connection('tenant')->commit();
+            return response()->json(['status' => TRUE, 'data' => $status], 200);
+        } catch (\Exception $e) {
+            DB::connection('tenant')->rollback();
+            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
-        $status=News::select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')->whereIn('status',$status)
-            ->get();
-        return response()->json(['status' => TRUE, 'data' => $status], 200);
+
     }
 
     public function newsWithNewsLetter(NewsToNewsLetterRequest $request){
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->connection('tenant')->beginTransaction();
             $news = $this->newsService->newsWithNewsLetters($request->news_id,$request->newsLetter_id);
-            DB::commit();
+            DB::connection('tenant')->connection('tenant')->commit();
             return $news;
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }

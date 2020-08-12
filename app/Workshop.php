@@ -1,10 +1,11 @@
 <?php
 
-namespace Modules\Newsletter\Entities;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
 
-class Workshop extends Model
+class Workshop extends TenancyModel
 {
     protected $table = 'workshops';
 

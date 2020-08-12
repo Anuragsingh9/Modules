@@ -3,11 +3,11 @@
 namespace Modules\Newsletter\Entities;
 
 use Brexis\LaravelWorkflow\Traits\WorkflowTrait;
-//use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
+use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class News extends Model {
+class News extends TenancyModel {
     use WorkflowTrait;
 
     protected $table = 'news_info';

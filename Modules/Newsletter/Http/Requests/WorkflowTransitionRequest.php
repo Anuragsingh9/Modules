@@ -7,11 +7,6 @@ use Illuminate\Validation\Rule;
 use Modules\Newsletter\Services\AuthorizationService;
 use Modules\Newsletter\Services\AuthorizationsService;
 
-//use Modules\Newsletter\Entities\News;
-//use Modules\Newsletter\Rules\CheckTransitionAvailableRule;
-//use Symfony\Component\Workflow\Transition;
-//use Workflow;
-
 class WorkflowTransitionRequest extends FormRequest {
     /**
      * Get the validation rules that apply to the request.
