@@ -4,7 +4,6 @@ namespace Modules\Newsletter\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Modules\Newsletter\Services\AuthorizationService;
 use Modules\Newsletter\Services\AuthorizationsService;
 
 class WorkflowTransitionRequest extends FormRequest {
@@ -16,7 +15,7 @@ class WorkflowTransitionRequest extends FormRequest {
     public function rules() {
 
         return [
-            "newsLetter" => "required_if:transition_name,==,send",
+            "newsletter" => "required_if:transition_name,==,send",
             'news_id'         => ['required',
                 Rule::exists('news_info', 'id')
                     ->whereNull('deleted_at')],

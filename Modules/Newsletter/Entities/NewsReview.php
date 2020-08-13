@@ -3,11 +3,13 @@
 namespace Modules\Newsletter\Entities;
 
 use App\User;
-use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
+//use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class NewsReview extends TenancyModel {
+//class NewsReview extends TenancyModel {
+class NewsReview extends Model {
+
     use SoftDeletes;
     
     protected $fillable = [

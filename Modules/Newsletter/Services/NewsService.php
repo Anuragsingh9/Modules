@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Modules\Newsletter\Entities\News;
 use Exception;
-use Modules\Newsletter\Entities\Newsletter;
+use Modules\Newsletter\Entities\NewsNewsletter;
 use Symfony\Component\Workflow\Transition;
 use Workflow;
 
 class NewsService {
-
+    protected $core;
     /**
      * @return NewsService
      */
@@ -24,6 +24,14 @@ class NewsService {
             $instance = new static();
         }
         return $instance;
+    }
+
+    /**
+     * @return CoreController
+     */
+    public function getCore() {
+        if ($this->core) return $this->core;
+        return $core = app(\App\Http\Controllers\CoreController::class);
     }
     
     /**
@@ -53,6 +61,9 @@ class NewsService {
     public function update($id, $param) {
         $param= $this->uploadNewsMedia($param);
         $news = News::where('id', $id)->update($param);
+        if (!$news) {
+            throw new \Exception();
+        }
         return  News::find($id);
     }
 
@@ -63,15 +74,15 @@ class NewsService {
      * @return array
      */
     public function uploadNewsMedia($param) {
-        $this->core = app(\App\Http\Controllers\CoreController::class);
+        $cores=$this->core=NewsService::getInstance()->getCore();
         if(isset($param['request_media_type'])) {
             if ($param['request_media_type'] == 0) { // video uploading
                 $param ['media_url'] = $param['request_media_url'];
                 $param['media_type'] = 0;
-                $param['media_thumbnail'] = $this->core->fileUploadToS3($param['request_media_blob']);
+                $param['media_thumbnail'] = $cores->fileUploadToS3($param['request_media_blob']);
             } elseif ($param['request_media_type'] == 1) { // image from system uploading
                 $param['media_type'] = 1;
-                $param ['media_url'] = $this->core->fileUploadToS3($param['request_media_blob'], $param['request_media_type']);
+                $param ['media_url'] = $cores->fileUploadToS3($param['request_media_blob'], $param['request_media_type']);
                 $param['media_thumbnail'] = NUll;
             } else{ // media_type == 2 and adobe image uploading so we already have url,
                 $param['media_type'] = 2;
@@ -81,7 +92,6 @@ class NewsService {
             unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
         }
         return $param;
-
     }
 
     /**
@@ -89,16 +99,16 @@ class NewsService {
      * @param string $transitionName
      * @return News
      */
-    public function applyTransitions($newsId, $transitionName,$newsLetter) {
+    public function applyTransitions($newsId, $transitionName,$newsLetterId) {
         $news = News::findOrFail($newsId);
         $workflow = Workflow::get($news,'news_status');
         $workflow->apply($news, $transitionName);
         $news->save();
         $param=[
             'news_id'=>$newsId,
-            'newsletter_id'=>$newsLetter,
+            'newsletter_id'=>$newsLetterId,
         ];
-    Newsletter::create($param);
+        NewsNewsletter::create($param);
         return $news;
     }
 
@@ -111,14 +121,14 @@ class NewsService {
         return News::where('status', $state)->get();
     }
 
-    public function newsWithNewsLetters($newsId,$newsLetter_id){
+    public function newsWithNewsLetters($newsId,$newsletter_id){
 
         $news = News::find($newsId);
         $param=[
             'news_id'       =>$newsId,
-            'newsletter_id' =>$newsLetter_id,
+            'newsletter_id' =>$newsletter_id,
         ];
-        Newsletter::create($param);
+        NewsNewsletter::create($param);
         return $news;
     }
     

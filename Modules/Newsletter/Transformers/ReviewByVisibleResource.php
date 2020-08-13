@@ -4,10 +4,8 @@ namespace Modules\Newsletter\Transformers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\Resource;
-use Modules\Newsletter\Entities\News;
-use Modules\Newsletter\Entities\NewsReview;
 
-class ReviewByVissibleResource extends Resource {
+class ReviewByVisibleResource extends Resource {
     /**
      * @param Request
      * @return array
@@ -21,7 +19,7 @@ class ReviewByVissibleResource extends Resource {
             'description'             => $this->description,
             'status'                  => $this->status,
             'review_id'               => $this->id,
-            'reviewsCountByvisible'   => $this->reviewsCountByvisible,
+            'reviews_by_visible'   => $this->reviewsCountByvisible,
             ];
 
     }
