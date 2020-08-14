@@ -15,9 +15,9 @@ class WorkflowTransitionRequest extends FormRequest {
     public function rules() {
 
         return [
-            "newsletter" => "required_if:transition_name,==,send",
+            "newsletter" => "required_if:transition_name,==,send", // if transition name is send then newsletter will be required
             'news_id'         => ['required',
-                Rule::exists('news_info', 'id')
+                Rule::exists('tenant.news_info', 'id')
                     ->whereNull('deleted_at')],
             'transition_name' => ['required'
             ],

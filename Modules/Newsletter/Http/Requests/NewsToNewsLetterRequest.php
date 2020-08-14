@@ -18,12 +18,12 @@ class NewsToNewsLetterRequest extends FormRequest
     {
         return [
             'news_id'=> ['required',
-                Rule::exists('news_info','id')->where(function ($query) {
+                Rule::exists('tenant.news_info','id')->where(function ($query) {
                     $query->where('status', 'validated')->whereNull('deleted_at');
                 }),
             ],
             'newsletter_id'=> ['required',
-                Rule::exists('newsletters','id'),
+                Rule::exists('tenant.newsletters','id'),
             ],
         ];
     }

@@ -20,11 +20,10 @@ class ReviewService {
     
     /**
      * @param $param
-     * @param $newsId
      * @return NewsReview
      * @throws Exception
      */
-    public function create($param, $newsId) {
+    public function create($param) { // Creating review of a news
         $review = NewsReview::create(
             $param);
         if (!$review) throw new Exception();
@@ -34,10 +33,11 @@ class ReviewService {
     /**
      * @param $param
      * @param $newsId
+     * @param $reveiwable
      * @return NewsReview
      * @throws Exception
      */
-    public function update($param, $newsId,$reveiwable) {
+    public function update($param, $newsId,$reveiwable) { // updating review
         $review = NewsReview::where(
             ['reviewable_id'   => $newsId,
              'reviewed_by'     => Auth::user()->id,

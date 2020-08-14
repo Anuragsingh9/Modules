@@ -30,11 +30,9 @@ class NewsController extends Controller {
      * @param NewsCreateRequest $request
      * @return JsonResponse|NewsResource
      */
-    public function store(NewsCreateRequest $request) {
+    public function store(NewsCreateRequest $request) { // create news
         try {
-//            DB::connection('tenant')->beginTransaction();
-            DB::beginTransaction();
-
+            DB::connection('tenant')->beginTransaction();
             $param = [
                 'title'              => $request->Title,
                 'header'             => $request->Header,
@@ -47,52 +45,51 @@ class NewsController extends Controller {
             ];
             $news = $this->newsService->createNews($param);
 
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }
 
-    public function getNews(Request $request){
+    public function getNews(Request $request){ // getting news according to the status
         try{
-            $status=$request->status;
-            DB::beginTransaction();
-            $news=$this->newsService->getNewsByStatus($status);
-            DB::commit();
+            DB::connection('tenant')->beginTransaction();
+            $news=$this->newsService->getNewsByStatus($request->status);
+            DB::connection('tenant')->commit();
             return NewsResource::collection($news)->additional(['status' => TRUE]);
 
         }catch (\Exception $e){
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }
 
 
-    public function update(NewsUpdateRequest $request) {
+    public function update(NewsUpdateRequest $request) { // update  news
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $param = [
                 'title'       => $request->Title,
                 'header'      => $request->Header,
                 'description' => $request->Description,
             ];
-            if ($request->has('media_type')) {
+            if ($request->has('media_type')) { // if update news has media then  $params will be prepared
                 $params = [
                     'request_media_type' => $request->has('media_type') ? $request->media_type : null,
                     'request_media_url'  => $request->has('media_url') ? $request->media_url : null,
                     'request_media_blob' => $request->has('media_blob') ? $request->media_blob : null,
                 ];
             }
-            if (isset($params)) {
-                $param = array_merge($param, $params);
+            if (isset($params)) { // if has media then it will merge the two array
+                $param = array_merge($param, $params); // if update has media then merging media $params with $param
             }
             $news = $this->newsService->update($request->news_id, $param);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => $e->getMessage()], 200);
         }
     }
@@ -101,51 +98,43 @@ class NewsController extends Controller {
      * @param WorkflowTransitionRequest $request
      * @return JsonResponse|NewsResource
      */
-    public function applyTransition(WorkflowTransitionRequest $request) {
+    public function applyTransition(WorkflowTransitionRequest $request) { // Transition of news
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsletter);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
-    }
-
-    public function getCounts(Request $request) {
-        $role = $this->newsService->getCurrentUserRole();
-        $role = 0;
-        if ($role !== null) {
-            return $this->newsService->getNewsCounts();
-        }
-        return 'not here';
     }
 
 
     public function newsStatusCount(Request $request) {
         try {
-            DB::beginTransaction();
-        if (Auth::user()->role == 'M1' || Auth::user()->role == 'M0') {
+            DB::connection('tenant')->beginTransaction();
+        if (Auth::user()->role == 'M1' || Auth::user()->role == 'M0') { // if user is super admin then all state of news
             $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
         }
         $workshop = Workshop::with(['meta' => function ($q) {
             $q->where('user_id', Auth::user()->id);
             $q->whereIn('role', [1, 2]);
         }])->where('code1', 'NSL')->first();
-        if ($workshop) {
+        if ($workshop) { // if user is Workshop admin then all state of news
             if ($workshop->meta->count()) {
                 $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
             } else {
+                // if user is workshop member then below state of news
                 $status = ['rejected', 'archived', 'validated'];
             }
             }
             $status=News::select('status', DB::raw('count(*) as total'))
                 ->groupBy('status')->whereIn('status',$status)->get();
-            DB::commit();
+            DB::connection('tenant')->commit();
             return response()->json(['status' => TRUE, 'data' => $status], 200);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
         }
     }

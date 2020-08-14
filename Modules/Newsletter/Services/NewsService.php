@@ -40,14 +40,14 @@ class NewsService {
      * @throws Exception
      */
     public function createNews($param) {
-        $param= $this->uploadNewsMedia($param);
+        $param= $this->uploadNewsMedia($param); //uploading media acoording to the media_type in $param
         $news = News::create($param);
         if (!$news) {
             throw new \Exception();
         }
         return $news;
     }
-    public function getNewsByStatus($status){
+    public function getNewsByStatus($status){ // news by status
         $news=News::where('status',$status)->get();
         return $news;
     }
@@ -58,7 +58,7 @@ class NewsService {
      * @return News
      * @throws Exception
      */
-    public function update($id, $param) {
+    public function update($id, $param) { // updating news
         $param= $this->uploadNewsMedia($param);
         $news = News::where('id', $id)->update($param);
         if (!$news) {
@@ -68,12 +68,10 @@ class NewsService {
     }
 
     /**
-     * @param $mediaType
-     * @param $url
-     * @param $blob
+     * @param $param
      * @return array
      */
-    public function uploadNewsMedia($param) {
+    public function uploadNewsMedia($param) { // upload media according to media_type
         $cores=$this->core=NewsService::getInstance()->getCore();
         if(isset($param['request_media_type'])) {
             if ($param['request_media_type'] == 0) { // video uploading
@@ -89,6 +87,7 @@ class NewsService {
                 $param ['media_url'] = $param['request_media_url'];
                 $param['media_thumbnail'] = NULL;
             }
+            // unset these value as they are not in fillables
             unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
         }
         return $param;
@@ -97,41 +96,22 @@ class NewsService {
     /**
      * @param integer $newsId
      * @param string $transitionName
+     * @param integer $newsLetterId
      * @return News
      */
     public function applyTransitions($newsId, $transitionName,$newsLetterId) {
         $news = News::findOrFail($newsId);
         $workflow = Workflow::get($news,'news_status');
-        $workflow->apply($news, $transitionName);
+        $workflow->apply($news, $transitionName); // applying transition
         $news->save();
         $param=[
             'news_id'=>$newsId,
-            'newsletter_id'=>$newsLetterId,
+            'newsletter_id'=>$newsLetterId, // if transition name is send then newsletter_d will have value
         ];
         NewsNewsletter::create($param);
         return $news;
     }
 
-    /**
-     * @return integer|null
-     */
-
-    public function getNewsByState($state) {
-
-        return News::where('status', $state)->get();
-    }
-
-    public function newsWithNewsLetters($newsId,$newsletter_id){
-
-        $news = News::find($newsId);
-        $param=[
-            'news_id'       =>$newsId,
-            'newsletter_id' =>$newsletter_id,
-        ];
-        NewsNewsletter::create($param);
-        return $news;
-    }
-    
 }
 
 

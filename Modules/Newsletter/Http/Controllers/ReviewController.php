@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Entities\NewsReview;
 use Modules\Newsletter\Http\Requests\ReviewAddRequest;
-use Modules\Newsletter\Http\Requests\ReviewDescriptionRequest;
 use Modules\Newsletter\Http\Requests\ReviewSendRequest;
 use Modules\Newsletter\Services\AuthorizationsService;
 use Modules\Newsletter\Services\ReviewService;
@@ -26,9 +25,9 @@ class ReviewController extends Controller {
         $this->service = ReviewService::getInstance();
     }
 
-    public function store(ReviewAddRequest $request) {
+    public function store(ReviewAddRequest $request) { //  store review
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $param =
                 [
                  'review_reaction' => $request->review_reaction,
@@ -38,65 +37,65 @@ class ReviewController extends Controller {
                  'reviewable_id'   => $request->news_id,
                  'reviewable_type' => News::class,
                 ];
-            $review = $this->service->create($param, $request->news_id);
-            DB::commit();
+            $review = $this->service->create($param);
+            DB::connection('tenant')->commit();
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
         }
     }
 
-    public function  getNewsReveiws($newsId){
+    public function  getNewsReveiws($newsId){ // get all reviews of a news
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $news = News::with('reviews')->find($newsId);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return ReviewResource::collection($news->reviews)->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
         }
     }
     
-    public function send(ReviewSendRequest $request) {
+    public function send(ReviewSendRequest $request) { // sending review
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $reveiwable =  News::class;
-            $param = ['is_visible' => 1,];
+            $param = ['is_visible' => 1];  // setting review  is_vissible=0 to is_vissible=1
             $review = $this->service->update($param, $request->news_id,$reveiwable);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error'], 200);
         }
     } 
 
 
-    public function searchNews(Request $request) {
+    public function searchNews(Request $request) { // search news with Title of the news
         try {
-            $title=$request->key;
-            DB::beginTransaction();
+            $title=$request->key; // This is search keyword
+            DB::connection('tenant')->beginTransaction();
             $result=News::with('reviewsCountByvisible')
                 ->where('title', 'LIKE',"%$title%")
                 ->orderBy('title', 'asc')->paginate(100);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return NewsResource::collection($result)->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
         }
     }
 
-    public function countReviewBySent(Request $request) {
+    public function countReviewBySent(Request $request) { // counting reivews reactions where is_vissible=1
         try {
-            DB::beginTransaction();
+            DB::connection('tenant')->beginTransaction();
             $result=News::with('reviewsCountByvisible')->get();
-            DB::commit();
+            DB::connection('tenant')->commit();
             return ReviewByVisibleResource::collection($result)->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
         }
     }
