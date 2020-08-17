@@ -40,7 +40,7 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) { // create news
         try {
-            DB::connection('tenant')->beginTransaction();
+            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'              => $request->Title,
                 'header'             => $request->Header,
@@ -67,7 +67,7 @@ class NewsController extends Controller {
      */
     public function getNews(Request $request){ // getting news according to the status
         try{
-            DB::connection('tenant')->beginTransaction();
+            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $news=$this->newsService->getNewsByStatus($request->status);
             DB::connection('tenant')->commit();
             return NewsResource::collection($news)->additional(['status' => TRUE]);
@@ -83,7 +83,7 @@ class NewsController extends Controller {
      */
     public function update(NewsUpdateRequest $request) { // update  news
         try {
-            DB::connection('tenant')->beginTransaction();
+            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'       => $request->Title,
                 'header'      => $request->Header,
@@ -114,7 +114,7 @@ class NewsController extends Controller {
      */
     public function applyTransition(WorkflowTransitionRequest $request) { // Transition of news
         try {
-            DB::connection('tenant')->beginTransaction();
+            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsletter);
             DB::connection('tenant')->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
@@ -130,7 +130,7 @@ class NewsController extends Controller {
      */
     public function newsStatusCount(Request $request) {
         try {
-            DB::connection('tenant')->beginTransaction();
+            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
         if (Auth::user()->role == 'M1' || Auth::user()->role == 'M0') { // if user is super admin then all state of news
             $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
         }
