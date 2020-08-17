@@ -4,9 +4,13 @@ namespace Modules\Newsletter\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Modules\Newsletter\Services\AuthorizationService;
 use Modules\Newsletter\Services\AuthorizationsService;
 
+/**
+ * This validate the request for Review Creation
+ * Class ReviewAddRequest
+ * @package Modules\Newsletter\Http\Requests
+ */
 class ReviewAddRequest extends FormRequest {
     /**
      * @return array
@@ -22,6 +26,7 @@ class ReviewAddRequest extends FormRequest {
     }
     
     /**
+     *  Determine weather  the user belongs to workshop or not.
      * @return bool
      */
     public function authorize() {

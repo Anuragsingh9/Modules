@@ -8,23 +8,31 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Http\Requests\NewsCreateRequest;
-use Modules\Newsletter\Http\Requests\NewsToNewsLetterRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
-use Modules\Newsletter\Services\AuthorizationsService;
 use Modules\Newsletter\Services\NewsService;
 use Modules\Newsletter\Transformers\NewsResource;
-use Symfony\Component\Workflow\Registry;
+const  MASSAGE = 'Internal Server Error';
 
+/**
+ * This class have all the logics related to News
+ * Class NewsController
+ * @package Modules\Newsletter\Http\Controllers
+ */
 class NewsController extends Controller {
+
+    /**
+     * @var NewsService|null
+     */
+
     private $newsService;
 
     public function __construct() {
         $this->newsService = NewsService::getInstance();
     }
+
 
     /**
      * @param NewsCreateRequest $request
@@ -49,24 +57,30 @@ class NewsController extends Controller {
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function getNews(Request $request){ // getting news according to the status
         try{
             DB::connection('tenant')->beginTransaction();
             $news=$this->newsService->getNewsByStatus($request->status);
             DB::connection('tenant')->commit();
             return NewsResource::collection($news)->additional(['status' => TRUE]);
-
         }catch (\Exception $e){
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
 
-
+    /**
+     * @param NewsUpdateRequest $request
+     * @return JsonResponse|NewsResource
+     */
     public function update(NewsUpdateRequest $request) { // update  news
         try {
             DB::connection('tenant')->beginTransaction();
@@ -106,11 +120,14 @@ class NewsController extends Controller {
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
 
-
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function newsStatusCount(Request $request) {
         try {
             DB::connection('tenant')->beginTransaction();
@@ -135,7 +152,7 @@ class NewsController extends Controller {
             return response()->json(['status' => TRUE, 'data' => $status], 200);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error', 'error' => $e->getMessage()], 200);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
 }

@@ -12,11 +12,19 @@ use Modules\Newsletter\Entities\NewsNewsletter;
 use Symfony\Component\Workflow\Transition;
 use Workflow;
 
+/**
+ * This class is performing all the actions of News
+ * This class is being called from NewsController
+ * Class NewsService
+ * @package Modules\Newsletter\Services
+ */
 class NewsService {
-    protected $core;
+    private $core;
+
     /**
-     * @return NewsService
+     *
      */
+
     public static function getInstance() {
 
         static $instance = NULL;
@@ -30,26 +38,32 @@ class NewsService {
      * @return CoreController
      */
     public function getCore() {
-        if ($this->core) return $this->core;
-        return $core = app(\App\Http\Controllers\CoreController::class);
+        if ($this->core){
+            return $this->core;
+        }
+        return  app(\App\Http\Controllers\CoreController::class);
     }
-    
+
     /**
      * @param $param
-     * @return News
+     * @return mixed
      * @throws Exception
      */
     public function createNews($param) {
         $param= $this->uploadNewsMedia($param); //uploading media acoording to the media_type in $param
         $news = News::create($param);
         if (!$news) {
-            throw new \Exception();
+            throw new InvalidArgumentException();
         }
         return $news;
     }
+
+    /**
+     * @param $status
+     * @return mixed
+     */
     public function getNewsByStatus($status){ // news by status
-        $news=News::where('status',$status)->get();
-        return $news;
+        return News::where('status',$status)->get();
     }
     
     /**
@@ -62,7 +76,7 @@ class NewsService {
         $param= $this->uploadNewsMedia($param);
         $news = News::where('id', $id)->update($param);
         if (!$news) {
-            throw new \Exception();
+            throw new InvalidArgumentException();
         }
         return  News::find($id);
     }

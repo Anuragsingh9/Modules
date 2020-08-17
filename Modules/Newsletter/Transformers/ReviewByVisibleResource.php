@@ -5,6 +5,11 @@ namespace Modules\Newsletter\Transformers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\Resource;
 
+/**
+ * This is returning all the News Resource where is_visible=1
+ * Class ReviewByVisibleResource
+ * @package Modules\Newsletter\Transformers
+ */
 class ReviewByVisibleResource extends Resource {
     /**
      * @param Request

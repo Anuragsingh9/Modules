@@ -7,10 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\Resource;
 use Modules\Newsletter\Services\NewsService;
 
+/**
+ * This is returning all resource of News
+ * Class NewsResource
+ * @package Modules\Newsletter\Transformers
+ */
 class NewsResource extends Resource {
 
     /**
-     * @param Request
+     * @param Request $request
      * @return array
      */
     public function toArray($request) {

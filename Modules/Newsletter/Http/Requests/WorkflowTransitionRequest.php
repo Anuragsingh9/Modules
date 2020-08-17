@@ -6,9 +6,13 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Modules\Newsletter\Services\AuthorizationsService;
 
+/**
+ * Get the validation rules that apply to the request.
+ * Class WorkflowTransitionRequest
+ * @package Modules\Newsletter\Http\Requests
+ */
 class WorkflowTransitionRequest extends FormRequest {
     /**
-     * Get the validation rules that apply to the request.
      *
      * @return array
      */

@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Auth;
 use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Entities\NewsReview;
 
+/**
+ * This class is performing all the actions of Reviews
+ * This class is being called from ReviewController
+ * Class ReviewService
+ * @package Modules\Newsletter\Services
+ */
 class ReviewService {
     /**
      * @return ReviewService
@@ -26,15 +32,17 @@ class ReviewService {
     public function create($param) { // Creating review of a news
         $review = NewsReview::create(
             $param);
-        if (!$review) throw new Exception();
+        if (!$review){
+            throw new InvalidArgumentException();
+        }
         return $review;
     }
-    
+
     /**
      * @param $param
      * @param $newsId
      * @param $reveiwable
-     * @return NewsReview
+     * @return mixed
      * @throws Exception
      */
     public function update($param, $newsId,$reveiwable) { // updating review
@@ -43,7 +51,9 @@ class ReviewService {
              'reviewed_by'     => Auth::user()->id,
              'reviewable_type' => $reveiwable
             ])->first();
-        if (!$review->update($param)) throw new Exception();
+        if (!$review->update($param)){
+            throw new InvalidArgumentException();
+        }
         return $review;
     }
     

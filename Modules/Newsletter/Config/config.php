@@ -3,9 +3,9 @@
 return [
          'validations'=>[
              'news'=>[
-                 'title'=>'30',
-                 'header'=>'30',
-                 'description'=>'50',
+                 'Title'=>'30',
+                 'Header'=>'30',
+                 'Description'=>'50',
              ],
          ],
         's3'=>[

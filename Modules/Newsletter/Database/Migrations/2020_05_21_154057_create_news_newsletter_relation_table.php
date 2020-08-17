@@ -2,6 +2,10 @@
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+
+/**
+ * This Migration is for creating Newsletter relationship
+ */
 class CreateNewsNewsletterRelationTable extends Migration {
     /**
      * @return void

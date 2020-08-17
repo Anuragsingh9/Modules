@@ -9,8 +9,18 @@ use App\Services\Service;
 use Modules\Newsletter\Entities\News;
 use App\WorkshopMeta;
 
+/**
+ * This class checks weather user is belongs to Workshop
+ * This class checks weather user is belongs to News
+ * Class AuthorizationsService
+ * @package Modules\Newsletter\Services
+ */
+
 class AuthorizationsService extends Service{
 
+    /**
+     * @return static|null
+     */
     public static function getInstance()
     {
         static $instance = NULL;
@@ -20,6 +30,10 @@ class AuthorizationsService extends Service{
         return $instance;
     }
 
+    /**
+     * @param $role
+     * @return bool
+     */
     public function isUserBelongsToWorkshop($role){
         if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
             return true;
@@ -33,13 +47,16 @@ class AuthorizationsService extends Service{
             if($workshopDetails){
                 return true;
             }
-            return false;
         }else{
             return false;
         }
         }
     }
 
+    /**
+     * @param $newsId
+     * @return bool
+     */
     public function isUserBelongsToNews($newsId){
         $news = News::where('id',$newsId)->first();
         if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){

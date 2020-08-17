@@ -8,7 +8,6 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-//use Modules\Newsletter\Entities\A;
 use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Entities\NewsReview;
 use Modules\Newsletter\Http\Requests\ReviewAddRequest;
@@ -18,13 +17,28 @@ use Modules\Newsletter\Services\ReviewService;
 use Modules\Newsletter\Transformers\NewsResource;
 use Modules\Newsletter\Transformers\ReviewByVisibleResource;
 use Modules\Newsletter\Transformers\ReviewResource;
+const  MASSAGE = 'Internal Server Error';
 
+/**
+ * This class have all the logics for getting reviews of a news
+ * Class ReviewController
+ * @package Modules\Newsletter\Http\Controllers
+ */
 class ReviewController extends Controller {
+
+    /**
+     * @var ReviewService|null
+     */
+
     protected $service;
     public function __construct() {
         $this->service = ReviewService::getInstance();
     }
 
+    /**
+     * @param ReviewAddRequest $request
+     * @return \Illuminate\Http\JsonResponse|ReviewResource
+     */
     public function store(ReviewAddRequest $request) { //  store review
         try {
             DB::connection('tenant')->beginTransaction();
@@ -42,10 +56,14 @@ class ReviewController extends Controller {
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE,'error' => $e->getMessage()], 500);
         }
     }
 
+    /**
+     * @param $newsId
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function  getNewsReveiws($newsId){ // get all reviews of a news
         try {
             DB::connection('tenant')->beginTransaction();
@@ -54,10 +72,14 @@ class ReviewController extends Controller {
             return ReviewResource::collection($news->reviews)->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE,'error' => $e->getMessage()], 500);
         }
     }
-    
+
+    /**
+     * @param ReviewSendRequest $request
+     * @return \Illuminate\Http\JsonResponse|ReviewResource
+     */
     public function send(ReviewSendRequest $request) { // sending review
         try {
             DB::connection('tenant')->beginTransaction();
@@ -68,11 +90,14 @@ class ReviewController extends Controller {
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error'], 200);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE], 200);
         }
-    } 
+    }
 
-
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function searchNews(Request $request) { // search news with Title of the news
         try {
             $title=$request->key; // This is search keyword
@@ -84,11 +109,15 @@ class ReviewController extends Controller {
             return NewsResource::collection($result)->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE,'error' => $e->getMessage()], 500);
         }
     }
 
-    public function countReviewBySent(Request $request) { // counting reivews reactions where is_vissible=1
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function countReviewBySent() { // counting reivews reactions where is_vissible=1
         try {
             DB::connection('tenant')->beginTransaction();
             $result=News::with('reviewsCountByvisible')->get();
@@ -96,7 +125,7 @@ class ReviewController extends Controller {
             return ReviewByVisibleResource::collection($result)->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => 'Internal Server Error','error' => $e->getMessage()], 500);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE,'error' => $e->getMessage()], 500);
         }
     }
 
