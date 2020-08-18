@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Http\Requests\NewsCreateRequest;
+use Modules\Newsletter\Http\Requests\NewsDeleteRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
 use Modules\Newsletter\Services\NewsService;
@@ -40,7 +41,7 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) { // create news
         try {
-            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'              => $request->Title,
                 'header'             => $request->Header,
@@ -53,10 +54,10 @@ class NewsController extends Controller {
             ];
             $news = $this->newsService->createNews($param);
 
-            DB::connection('tenant')->commit();
+            DB::commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::connection('tenant')->rollback();
+            DB::rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
@@ -128,7 +129,7 @@ class NewsController extends Controller {
      * @param Request $request
      * @return JsonResponse
      */
-    public function newsStatusCount(Request $request) {
+    public function newsStatusCount() {
         try {
             DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
         if (Auth::user()->role == 'M1' || Auth::user()->role == 'M0') { // if user is super admin then all state of news
@@ -152,6 +153,22 @@ class NewsController extends Controller {
             return response()->json(['status' => TRUE, 'data' => $status], 200);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
+        }
+    }
+
+    /**
+     * @param NewsDeleteRequest $request
+     * @return JsonResponse
+     */
+    public function deleteNews(NewsDeleteRequest $request){// delete news
+        try {
+            DB::beginTransaction();
+            $this->newsService->delete($request->news_id);
+            DB::commit();
+            return response()->json(['status' => TRUE], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }

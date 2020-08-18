@@ -10,6 +10,7 @@ Route::group(['middleware' => 'web', 'prefix' => 'newsletter', 'namespace' => 'M
         Route::get('getnews/status','NewsController@newsStatusCount');// get count of all news by status
         Route::post('update', 'NewsController@update');// update the news
         Route::post('transition', 'NewsController@applyTransition');// apply Transition
+        Route::post('delete','NewsController@deleteNews');// delete news
 
     Route::group(['prefix' => 'review'], function () {
         Route::post('review/create', 'ReviewController@store'); // create review

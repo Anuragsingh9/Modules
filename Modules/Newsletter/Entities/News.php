@@ -3,7 +3,7 @@
 namespace Modules\Newsletter\Entities;
 
 use Brexis\LaravelWorkflow\Traits\WorkflowTrait;
-use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
+//use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
  * Class News
  * @package Modules\Newsletter\Entities
  */
-class News extends TenancyModel {
+//class News extends TenancyModel {
+class News extends Model {
 
     use WorkflowTrait;
     
@@ -43,4 +44,11 @@ class News extends TenancyModel {
             )->where('is_visible', '=', 1)
             ->groupBy('reviewable_id');
     }
+
+//    public function delete(){
+//        // delete associated reviews
+//        $this->reviews()->delete();
+//        // call parent delete, which deletes the model itself
+//        parent::delete();
+//    }
 }

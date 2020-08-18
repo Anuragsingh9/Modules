@@ -15,7 +15,7 @@ class CreateNewsReviewTable extends Migration
      */
     public function up()
     {
-        Schema::create('news_review', function (Blueprint $table) {
+        Schema::create('news_reviews', function (Blueprint $table) {
             $table->increments('id');
             $table->string('review_text')->nullable();
             $table->string('review_reaction');
@@ -26,6 +26,7 @@ class CreateNewsReviewTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
     }
 
     /**

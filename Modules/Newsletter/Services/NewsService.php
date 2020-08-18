@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Modules\Newsletter\Entities\News;
 use Exception;
 use Modules\Newsletter\Entities\NewsNewsletter;
+use Modules\Newsletter\Entities\NewsReview;
 use Symfony\Component\Workflow\Transition;
 use Workflow;
 
@@ -125,6 +126,18 @@ class NewsService {
         NewsNewsletter::create($param);
         return $news;
     }
+
+    /**
+     * @param $id
+     */
+    public function delete($Id){
+        $news=News::find($Id);
+//        $review=NewsReview::where('reviewable_id',$Id);
+//        $review->delete();
+        $news->reviews()->delete();
+        $news->delete();
+    }
+
 
 }
 

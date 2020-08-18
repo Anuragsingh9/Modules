@@ -8,32 +8,34 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Modules\Newsletter\Services\AuthorizationsService;
 
-/**
- * This validate the request for Review Creation
- * Class ReviewAddRequest
- * @package Modules\Newsletter\Http\Requests
- */
-class ReviewAddRequest extends FormRequest {
+class NewsDeleteRequest extends FormRequest
+{
     /**
+     * Get the validation rules that apply to the request.
+     *
      * @return array
      */
-    public function rules() {
+    public function rules()
+    {
         return [
-           'review_reaction' => 'required|in:0,1,2',
-            'review_text'    =>'required_if:review_reaction,0,1',
-           'news_id'         => ['required',
-               Rule::exists('news_info', 'id')->whereNull('deleted_at'),
-           ],
+            'news_id' =>[
+                'required',
+                 Rule::exists('news_info','id')->where(function ($query) {
+                    $query->where('status','=','rejected')->whereNull('deleted_at');
+                })
+                ]
+
         ];
     }
-    
+
     /**
-     *  Determine weather  the user belongs to workshop or not.
+     * Determine if the user is authorized to make this request.
+     *
      * @return bool
      */
-    public function authorize() {
-
-        return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
+    public function authorize()
+    {
+        return AuthorizationsService::getInstance()->isUserBelongsToNews($this->news_id);
     }
 
     protected function failedValidation(Validator $validator) {

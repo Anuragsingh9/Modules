@@ -40,7 +40,7 @@ class ReviewController extends Controller {
      */
     public function store(ReviewAddRequest $request) { //  store review
         try {
-            DB::connection('tenant')->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param =
                 [
                  'review_reaction' => $request->review_reaction,
@@ -51,10 +51,10 @@ class ReviewController extends Controller {
                  'reviewable_type' => News::class,
                 ];
             $review = $this->service->create($param);
-            DB::connection('tenant')->commit();
+            DB::commit();
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::connection('tenant')->rollback();
+            DB::rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE,'error' => $e->getMessage()], 500);
         }
     }

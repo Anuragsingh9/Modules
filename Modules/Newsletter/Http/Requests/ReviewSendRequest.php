@@ -2,7 +2,9 @@
 
 namespace Modules\Newsletter\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Modules\Newsletter\Entities\News;
@@ -36,5 +38,12 @@ class ReviewSendRequest extends FormRequest {
      */
     public function authorize() {
         return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
+    }
+
+    protected function failedValidation(Validator $validator) {
+        throw new HttpResponseException(response()->json([
+            'status' => false,
+            'msg'    => implode(',', $validator->errors()->all())
+        ], 422));
     }
 }
