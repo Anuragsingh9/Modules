@@ -5,6 +5,7 @@ namespace Modules\Newsletter\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Modules\Newsletter\Rules\LangRule;
 use Modules\Newsletter\Services\AuthorizationsService;
 /**
  * This validate the request for News Creation
@@ -18,7 +19,7 @@ class NewsCreateRequest extends FormRequest {
      */
     public function rules() {
         $requiredStringMax = function($max) {
-            return "required|string|max:".config("newsletter.validations.news.$max");
+            return ['required','string','max:'.config("newsletter.validations.news.$max"),new LangRule];
         };
 
         return [
@@ -27,7 +28,7 @@ class NewsCreateRequest extends FormRequest {
            'Description' => $requiredStringMax('Description'),
            'media_type'  => 'required|in:0,1,2', // 0 for video, 1 for system image, 2 image from adobe
            'media_url'   => 'required_if:media_type,0,2|url', // url need for video or adobe image
-           'media_blob'  => 'required_if:media_type,0,1|image', // required for video thumbnail or image upload
+           'media_blob'  => ['required_if:media_type,0,1|image','dimensions:max_width=560,max_height=355'] // required for video thumbnail or image upload
         ];
     }
 

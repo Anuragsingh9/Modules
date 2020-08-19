@@ -19,19 +19,19 @@ class NewsUpdateRequest extends FormRequest {
      */
     public function rules() {
         $requiredStringMax = function($max) {
-            return "required|string|max:".config("newsletter.validations.news.$max");
+            return "required|string|regex:/[^a-zA-ZÀ-ÿ]/|max:".config("newsletter.validations.news.$max");
         };
         return [
             'news_id'     => [
                 'required',
-                Rule::exists('tenant.news_info', 'id')->whereNull('deleted_at')
+                Rule::exists('news_info', 'id')->whereNull('deleted_at')
             ],
             'Title'       => $requiredStringMax('Title'),
             'Header'      => $requiredStringMax('Header'),
             'Description' => $requiredStringMax('Description'),
             'media_type'  => 'in:0,1,2|nullable', // 0 for video, 1 for system image, 2 image from adobe
             'media_url'   => 'required_if:media_type,0,2|url', // url need for video or adobe image
-            'media_blob'  => 'required_if:media_type,0,1|image', // required for video thumbnail or image upload
+            'media_blob'  => ['required_if:media_type,0,1|image','dimensions:max_width=560,max_height=355'] // required for video thumbnail or image upload
         ];
     }
     

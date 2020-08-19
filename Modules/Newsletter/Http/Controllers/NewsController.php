@@ -84,7 +84,7 @@ class NewsController extends Controller {
      */
     public function update(NewsUpdateRequest $request) { // update  news
         try {
-            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'       => $request->Title,
                 'header'      => $request->Header,
@@ -101,10 +101,10 @@ class NewsController extends Controller {
                 $param = array_merge($param, $params); // if update has media then merging media $params with $param
             }
             $news = $this->newsService->update($request->news_id, $param);
-            DB::connection('tenant')->commit();
+            DB::commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::connection('tenant')->rollback();
+            DB::rollback();
             return response()->json(['status' => FALSE, 'msg' => $e->getMessage()], 200);
         }
     }
