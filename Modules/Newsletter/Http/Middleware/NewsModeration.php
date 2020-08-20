@@ -23,6 +23,6 @@ class NewsModeration
                 return $next($request);
             }
         }
-        return response()->json(['status' => FALSE, 'msg' => 'Unauthorized',],401);
+        return response()->json(['status' => FALSE, 'msg' => __('newsletter::message.news_moderation_disabled')],401);
     }
 }

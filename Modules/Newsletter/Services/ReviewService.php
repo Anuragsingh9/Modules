@@ -3,7 +3,6 @@
 namespace Modules\Newsletter\Services;
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Entities\NewsReview;
 
 /**

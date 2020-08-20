@@ -27,7 +27,7 @@ class NewsCreateRequest extends FormRequest {
            'Header'      => $requiredStringMax('Header'),
            'Description' => $requiredStringMax('Description'),
            'media_type'  => 'required|in:0,1,2', // 0 for video, 1 for system image, 2 image from adobe
-           'media_url'   => 'required_if:media_type,0,2|url', // url need for video or adobe image
+//           'media_url'   => 'required_if:media_type,0|url', // url need for video or adobe image
            'media_blob'  => ['required_if:media_type,0,1|image','dimensions:max_width=560,max_height=355'] // required for video thumbnail or image upload
         ];
     }
@@ -45,5 +45,16 @@ class NewsCreateRequest extends FormRequest {
             'status' => false,
             'msg'    => implode(',', $validator->errors()->all())
         ], 422));
+    }
+
+    protected function getValidatorInstance() {
+        $validator = parent::getValidatorInstance();
+        $validator->sometimes('media_url', 'required|string', function () {
+            return $this->media_type == 2;
+        });
+        $validator->sometimes('media_url', 'required|url', function () {
+            return $this->media_type == 0;
+        });
+        return $validator;
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Newsletter\Entities\News;
+use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Http\Requests\ReviewAddRequest;
 use Modules\Newsletter\Http\Requests\ReviewSendRequest;
 use Modules\Newsletter\Services\AuthorizationsService;
@@ -65,10 +66,17 @@ class ReviewController extends Controller {
      */
     public function  getNewsReveiws($newsId){ // get all reviews of a news
         try {
+            $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
+            if (!$auth) {
+                throw new CustomAuthorizationException('Sorry.You are not authorized.');
+            }
             DB::connection('tenant')->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $news = News::with('reviews')->find($newsId);
             DB::connection('tenant')->commit();
             return ReviewResource::collection($news->reviews)->additional(['status' => TRUE]);
+        } catch (CustomAuthorizationException $exception) {
+            DB::rollback();
+            return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE,'error' => $e->getMessage()], 500);
@@ -99,6 +107,10 @@ class ReviewController extends Controller {
      */
     public function searchNews(Request $request) { // search news with Title of the news
         try {
+            $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
+            if (!$auth) {
+                throw new CustomAuthorizationException('Sorry.You are not authorized.');
+            }
             $title=$request->key; // This is search keyword
             DB::connection('tenant')->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $result=News::with('reviewsCountByvisible')
@@ -106,6 +118,9 @@ class ReviewController extends Controller {
                 ->orderBy('title', 'asc')->paginate(100);
             DB::connection('tenant')->commit();
             return NewsResource::collection($result)->additional(['status' => TRUE]);
+        } catch (CustomAuthorizationException $exception) {
+            DB::rollback();
+            return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE,'error' => $e->getMessage()], 500);
@@ -118,10 +133,17 @@ class ReviewController extends Controller {
      */
     public function countReviewBySent() { // counting reivews reactions where is_vissible=1
         try {
+            $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
+            if (!$auth) {
+                throw new CustomAuthorizationException('Sorry.You are not authorized.');
+            }
             DB::connection('tenant')->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $result=News::with('reviewsCountByvisible')->get();
             DB::connection('tenant')->commit();
             return ReviewByVisibleResource::collection($result)->additional(['status' => TRUE]);
+        } catch (CustomAuthorizationException $exception) {
+            DB::rollback();
+            return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE,'error' => $e->getMessage()], 500);

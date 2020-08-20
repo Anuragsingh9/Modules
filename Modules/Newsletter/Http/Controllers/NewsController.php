@@ -9,10 +9,12 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Newsletter\Entities\News;
+use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Http\Requests\NewsCreateRequest;
 use Modules\Newsletter\Http\Requests\NewsDeleteRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
+use Modules\Newsletter\Services\AuthorizationsService;
 use Modules\Newsletter\Services\NewsService;
 use Modules\Newsletter\Transformers\NewsResource;
 const  MASSAGE = 'Internal Server Error';
@@ -67,16 +69,25 @@ class NewsController extends Controller {
      * @return JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function getNews(Request $request){ // getting news according to the status
-        try{
-            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
-            $news=$this->newsService->getNewsByStatus($request->status);
-            DB::connection('tenant')->commit();
-            return NewsResource::collection($news)->additional(['status' => TRUE]);
-        }catch (\Exception $e){
-            DB::connection('tenant')->rollback();
-            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
+
+            try {
+                $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
+                if (!$auth) {
+                    throw new CustomAuthorizationException('Sorry.You are not authorized.');
+                }
+                DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+                    $news = $this->newsService->getNewsByStatus($request->status);
+                    DB::commit();
+                    return NewsResource::collection($news)->additional(['status' => TRUE]);
+            }catch (CustomAuthorizationException $exception) {
+                DB::rollback();
+                return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
+            } catch (\Exception $e) {
+                DB::rollback();
+                return response()->json(['status' => FALSE,'msg' => MASSAGE], 500);
+            }
         }
-    }
+
 
     /**
      * @param NewsUpdateRequest $request
@@ -131,6 +142,10 @@ class NewsController extends Controller {
      */
     public function newsStatusCount() {
         try {
+            $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
+            if (!$auth) {
+                throw new CustomAuthorizationException('Sorry.You are not authorized.');
+            }
             DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
         if (Auth::user()->role == 'M1' || Auth::user()->role == 'M0') { // if user is super admin then all state of news
             $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
@@ -151,6 +166,9 @@ class NewsController extends Controller {
                 ->groupBy('status')->whereIn('status',$status)->get();
             DB::connection('tenant')->commit();
             return response()->json(['status' => TRUE, 'data' => $status], 200);
+        } catch (CustomAuthorizationException $exception) {
+            DB::rollback();
+            return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
         } catch (\Exception $e) {
             DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);

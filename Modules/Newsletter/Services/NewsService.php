@@ -132,8 +132,6 @@ class NewsService {
      */
     public function delete($Id){
         $news=News::find($Id);
-//        $review=NewsReview::where('reviewable_id',$Id);
-//        $review->delete();
         $news->reviews()->delete();
         $news->delete();
     }
