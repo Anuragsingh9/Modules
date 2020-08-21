@@ -1,6 +1,7 @@
 <?php
 
 namespace Modules\Newsletter\Services;
+use App\Exceptions\Handler;
 use App\User;
 use App\Workshop;
 use http\Env\Request;
@@ -8,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\Service;
 use Modules\Newsletter\Entities\News;
 use App\WorkshopMeta;
+use Exception;
 
 /**
  * This class checks weather user is belongs to Workshop
@@ -16,7 +18,7 @@ use App\WorkshopMeta;
  * @package Modules\Newsletter\Services
  */
 
-class AuthorizationsService extends Service{
+class AuthorizationsService extends Service {
 
     /**
      * @return static|null

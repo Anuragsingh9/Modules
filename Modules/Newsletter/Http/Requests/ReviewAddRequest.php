@@ -42,4 +42,12 @@ class ReviewAddRequest extends FormRequest {
             'msg'    => implode(',', $validator->errors()->all())
         ], 422));
     }
+
+    public function failedAuthorization()
+    {
+        throw new HttpResponseException(response()->json([
+            'status' => false,
+            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorised",
+        ], 401));
+    }
 }

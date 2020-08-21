@@ -190,5 +190,22 @@ class NewsController extends Controller {
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function stockImageUpload(Request $request){
+        try{
+            DB::beginTransaction();
+            $this->newsService->uploadStockImage($request);
+            DB::commit();
+            //return $url
+            return response()->json(['status' => TRUE], 200);
+        }catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
+        }
+    }
 }
 

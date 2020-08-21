@@ -1,6 +1,7 @@
 <?php
 
 namespace Modules\Newsletter\Services;
+use App\Services\StockService;
 use App\Workshop;
 use App\WorkshopMeta;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +13,7 @@ use Modules\Newsletter\Entities\NewsNewsletter;
 use Modules\Newsletter\Entities\NewsReview;
 use Symfony\Component\Workflow\Transition;
 use Workflow;
+use Illuminate\Http\Request;
 
 /**
  * This class is performing all the actions of News
@@ -21,7 +23,7 @@ use Workflow;
  */
 class NewsService {
     private $core;
-
+    private $service;
     /**
      *
      */
@@ -43,6 +45,16 @@ class NewsService {
             return $this->core;
         }
         return  app(\App\Http\Controllers\CoreController::class);
+    }
+
+    /**
+     * @return StockService
+     */
+    public function getService() {
+        if ($this->service){
+            return $this->service;
+        }
+        return  app(\App\Services\StockService::class);
     }
 
     /**
@@ -99,13 +111,28 @@ class NewsService {
                 $param['media_thumbnail'] = NUll;
             } else{ // media_type == 2 and adobe image uploading so we already have url,
                 $param['media_type'] = 2;
-                $param ['media_url'] = $param['request_media_url'];
+                $param ['media_url'] = ($param['request_media_url']);
+
                 $param['media_thumbnail'] = NULL;
             }
             // unset these value as they are not in fillables
             unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
         }
         return $param;
+    }
+
+    public function uploadStockImage($request){
+        $cores=$this->core=NewsService::getInstance()->$this->getCore();
+        $services=$this->service=NewsService::getInstance()->$this->getService();
+        $path = config('newsletter.s3.news_image');
+        $visibility = 'public';
+        $path=$services->uploadImage($request,$path,$visibility);
+        $mediaUrl= $cores->getS3Parameter($path);
+        $url=[
+            'url'=>$mediaUrl,
+            'path'=>$path,
+        ];
+        return $url;
     }
 
     /**

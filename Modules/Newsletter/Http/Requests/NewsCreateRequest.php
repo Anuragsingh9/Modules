@@ -12,7 +12,7 @@ use Modules\Newsletter\Services\AuthorizationsService;
  * Class NewsCreateRequest
  * @package Modules\Newsletter\Http\Requests
  */
-class NewsCreateRequest extends FormRequest {
+class NewsCreateRequest extends FormRequest  {
 
     /**
      * @return array
@@ -27,7 +27,6 @@ class NewsCreateRequest extends FormRequest {
            'Header'      => $requiredStringMax('Header'),
            'Description' => $requiredStringMax('Description'),
            'media_type'  => 'required|in:0,1,2', // 0 for video, 1 for system image, 2 image from adobe
-//           'media_url'   => 'required_if:media_type,0|url', // url need for video or adobe image
            'media_blob'  => ['required_if:media_type,0,1|image','dimensions:max_width=560,max_height=355'] // required for video thumbnail or image upload
         ];
     }
@@ -57,4 +56,13 @@ class NewsCreateRequest extends FormRequest {
         });
         return $validator;
     }
+    public function failedAuthorization()
+    {
+        throw new HttpResponseException(response()->json([
+            'status' => false,
+            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorisedhhh",
+        ], 401));
+    }
 }
+
+
