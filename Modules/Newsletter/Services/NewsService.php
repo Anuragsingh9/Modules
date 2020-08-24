@@ -16,7 +16,7 @@ use Modules\Newsletter\Exceptions\CustomValidationException;
 use Symfony\Component\Workflow\Transition;
 use Workflow;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Config;
 /**
  * This class is performing all the actions of News
  * This class is being called from NewsController
@@ -26,10 +26,10 @@ use Illuminate\Http\Request;
 class NewsService {
     private $core;
     private $service;
-    /**
-     *
-     */
 
+    /**
+     * @return static|null
+     */
     public static function getInstance() {
 
         static $instance = NULL;
@@ -108,18 +108,17 @@ class NewsService {
     public function uploadNewsMedia($param) { // upload media according to media_type
         $cores=$this->core=NewsService::getInstance()->getCore();
         if(isset($param['request_media_type'])) {
-            if ($param['request_media_type'] == 0) { // video uploading
+            if ($param['request_media_type'] == Config::get('nl_const.media_type.media_video')) { // video uploading
                 $param ['media_url'] = $param['request_media_url'];
-                $param['media_type'] = 0;
+                $param['media_type'] =Config::get('nl_const.media_type.media_video');
                 $param['media_thumbnail'] = $cores->fileUploadToS3($param['request_media_blob']);
-            } elseif ($param['request_media_type'] == 1) { // image from system uploading
-                $param['media_type'] = 1;
+            } elseif ($param['request_media_type'] == Config::get('nl_const.media_type.media_image')) { // image from system uploading
+                $param['media_type'] = Config::get('nl_const.media_type.media_image');
                 $param ['media_url'] = $cores->fileUploadToS3($param['request_media_blob'], $param['request_media_type']);
                 $param['media_thumbnail'] = NUll;
             } else{ // media_type == 2 and adobe image uploading so we already have url,
-                $param['media_type'] = 2;
+                $param['media_type'] = Config::get('nl_const.media_type.media_stock');
                 $param ['media_url'] = ($param['request_media_url']);
-
                 $param['media_thumbnail'] = NULL;
             }
             // unset these value as they are not in fillables
@@ -128,6 +127,10 @@ class NewsService {
         return $param;
     }
 
+    /**
+     * @param $request
+     * @return array
+     */
     public function uploadStockImage($request){
         $cores=$this->core=NewsService::getInstance()->$this->getCore();
         $services=$this->service=NewsService::getInstance()->$this->getService();
@@ -139,7 +142,6 @@ class NewsService {
             'url'=>$mediaUrl,
             'path'=>$path,
         ];
-
     }
 
     /**
@@ -173,7 +175,6 @@ class NewsService {
         $news->reviews()->delete();
         $news->delete();
     }
-
 
 }
 

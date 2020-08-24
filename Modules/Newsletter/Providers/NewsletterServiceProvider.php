@@ -48,8 +48,12 @@ class NewsletterServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../Config/config.php' => config_path('newsletter.php'),
         ], 'config');
+
         $this->mergeConfigFrom(
             __DIR__.'/../Config/config.php', 'newsletter'
+        );
+        $this->mergeConfigFrom(
+            __DIR__.'/../Config/nl_const.php', 'nl_const'
         );
     }
 

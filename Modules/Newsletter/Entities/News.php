@@ -16,7 +16,10 @@ use Illuminate\Support\Facades\DB;
 class News extends Model {
 
     use WorkflowTrait;
-    
+//    public static $MEDIA_VIDEO = 0; // media_type=0 for video
+//    public static $MEDIA_IMAGE = 1; // media_type=1 for system image
+//    public static $MEDIA_STOCK = 2; // media_type=2 for stock image
+
     protected $table = 'news_info';
     protected $fillable = [
         'title', 'header', 'description', 'status', 'created_by', 'media_url', 'media_thumbnail', 'media_type'

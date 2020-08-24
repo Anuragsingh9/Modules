@@ -77,7 +77,7 @@ class NewsController extends Controller {
                 }
                 DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
                     $news = $this->newsService->getNewsByStatus($request->status);
-                    DB::commit();
+                DB::commit();
                     return NewsResource::collection($news)->additional(['status' => TRUE]);
             } catch (CustomAuthorizationException $exception) {
                 DB::rollback();
