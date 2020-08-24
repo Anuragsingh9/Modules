@@ -4,6 +4,8 @@ namespace Modules\Newsletter\Services;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Modules\Newsletter\Entities\NewsReview;
+use Modules\Newsletter\Exceptions\CustomAuthorizationException;
+use Modules\Newsletter\Exceptions\CustomValidationException;
 
 /**
  * This class is performing all the actions of Reviews
@@ -32,7 +34,7 @@ class ReviewService {
         $review = NewsReview::create(
             $param);
         if (!$review){
-            throw new InvalidArgumentException();
+            throw new CustomValidationException('Review not created');
         }
         return $review;
     }
@@ -51,9 +53,8 @@ class ReviewService {
              'reviewable_type' => $reveiwable
             ])->first();
         if (!$review->update($param)){
-            throw new InvalidArgumentException();
+            throw new CustomValidationException('Review not updated');
         }
         return $review;
     }
-    
 }

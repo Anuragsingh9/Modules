@@ -45,10 +45,5 @@ class News extends Model {
             ->groupBy('reviewable_id');
     }
 
-//    public function delete(){
-//        // delete associated reviews
-//        $this->reviews()->delete();
-//        // call parent delete, which deletes the model itself
-//        parent::delete();
-//    }
+
 }

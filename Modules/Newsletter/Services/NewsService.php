@@ -11,6 +11,8 @@ use Modules\Newsletter\Entities\News;
 use Exception;
 use Modules\Newsletter\Entities\NewsNewsletter;
 use Modules\Newsletter\Entities\NewsReview;
+use Modules\Newsletter\Exceptions\CustomAuthorizationException;
+use Modules\Newsletter\Exceptions\CustomValidationException;
 use Symfony\Component\Workflow\Transition;
 use Workflow;
 use Illuminate\Http\Request;
@@ -66,7 +68,7 @@ class NewsService {
         $param= $this->uploadNewsMedia($param); //uploading media acoording to the media_type in $param
         $news = News::create($param);
         if (!$news) {
-            throw new InvalidArgumentException();
+            throw new CustomValidationException('News not created');
         }
         return $news;
     }
@@ -74,9 +76,14 @@ class NewsService {
     /**
      * @param $status
      * @return mixed
+     * @throws CustomValidationException
      */
     public function getNewsByStatus($status){ // news by status
-        return News::where('status',$status)->get();
+        $news= News::where('status',$status)->get();
+        if (count($news)==0) {
+            throw new CustomValidationException('No News Found!!');
+        }
+        return $news;
     }
     
     /**
@@ -89,7 +96,7 @@ class NewsService {
         $param= $this->uploadNewsMedia($param);
         $news = News::where('id', $id)->update($param);
         if (!$news) {
-            throw new InvalidArgumentException();
+            throw new CustomValidationException('News not updated');
         }
         return  News::find($id);
     }
@@ -128,11 +135,11 @@ class NewsService {
         $visibility = 'public';
         $path=$services->uploadImage($request,$path,$visibility);
         $mediaUrl= $cores->getS3Parameter($path);
-        $url=[
+        return $url =[
             'url'=>$mediaUrl,
             'path'=>$path,
         ];
-        return $url;
+
     }
 
     /**
@@ -155,10 +162,14 @@ class NewsService {
     }
 
     /**
-     * @param $id
+     * @param $Id
+     * @throws CustomValidationException
      */
     public function delete($Id){
         $news=News::find($Id);
+        if (count($news) == 0) {
+            throw new CustomValidationException('No News Found To Delete!!');
+        }
         $news->reviews()->delete();
         $news->delete();
     }
