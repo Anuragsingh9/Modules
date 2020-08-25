@@ -72,18 +72,14 @@ class ReviewController extends Controller {
             if (!$auth) {
                 throw new CustomAuthorizationException();
             }
-            DB::beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $news = News::with('reviews')->find($newsId);
             if(!$news){
                 throw new CustomValidationException('No Review for this News');
             }
-            DB::commit();
             return ReviewResource::collection($news->reviews)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
-            DB::rollback();
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
         } catch (CustomValidationException $exception) {
-            DB::rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
@@ -117,20 +113,16 @@ class ReviewController extends Controller {
                 throw new CustomAuthorizationException(UNAUTHORISED);
             }
             $title=$request->key; // This is search keyword
-            DB::beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $result=News::with('reviewsCountByvisible')
                 ->where('title', 'LIKE',"%$title%")
                 ->orderBy('title', 'asc')->paginate(100);
-            DB::commit();
             if(count($result) == 0){
                 throw new CustomValidationException('No News Found');
             }
             return NewsResource::collection($result)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
-            DB::rollback();
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
         } catch (CustomValidationException $exception) {
-            DB::rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
@@ -145,18 +137,14 @@ class ReviewController extends Controller {
             if (!$auth) {
                 throw new CustomAuthorizationException('Sorry.You are not authorized.');
             }
-            DB::beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $result=News::with('reviewsCountByvisible')->get();
-            DB::commit();
             if(!$result){
                 throw new CustomValidationException('No Newsd Found');
             }
             return ReviewByVisibleResource::collection($result)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
-            DB::rollback();
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
         } catch (CustomValidationException $exception) {
-            DB::rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }

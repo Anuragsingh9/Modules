@@ -2,18 +2,16 @@
 
 namespace Modules\Newsletter\Http\Middleware;
 
+use App\AccountSetting;
 use Closure;
 use Illuminate\Http\Request;
-use Modules\Newsletter\Entities\AccountSetting;
 
 class NewsModeration
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
+     * @param Request $request
+     * @param Closure $next
+     * @return \Illuminate\Http\JsonResponse|mixed
      */
     public function handle(Request $request, Closure $next)
     {

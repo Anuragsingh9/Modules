@@ -32,4 +32,8 @@ class Workshop extends Model
     {
         return $this->hasMany(WorkshopMeta::class);
     }
+    public function newsLetterWorkshops($query)
+    {
+        return $query->where('code1','=','NSL');
+    }
 }

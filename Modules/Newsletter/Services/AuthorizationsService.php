@@ -19,7 +19,7 @@ use Exception;
  */
 
 class AuthorizationsService extends Service {
-
+    protected $getWorkshop;
     /**
      * @return static|null
      */
@@ -32,18 +32,31 @@ class AuthorizationsService extends Service {
         return $instance;
     }
 
+    public function isUserSuperAdmin(){
+        $role=['M0','M1'];
+        foreach ($role as $roles){
+            if(Auth::user()->role == $roles){
+                return TRUE;
+            }
+            return FALSE;
+        }
+    }
+
     /**
      * @param $role
      * @return bool
      */
     public function isUserBelongsToWorkshop($role){
-        if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
+        $this->getWorkshop=NewsService::getInstance();
+        if($this->isUserSuperAdmin() == 1){
             return true;
         }else{
             $workshop = Workshop::with(['meta' => function($q) use ($role) {
                 $q->where('user_id',Auth::user()->id);
             $q->whereIn('role',$role);
-        }])->where('code1','=','NSL') ->first();
+        }])->where(function() {
+                return $this->getWorkshop->getNewsLetterWorkshop();
+        })->first();
         if($workshop){
             $workshopDetails=$workshop->meta->count();
             if($workshopDetails){

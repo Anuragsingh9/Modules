@@ -2,9 +2,11 @@
 
 namespace Modules\Newsletter\Services;
 use App\Services\StockService;
+use App\User;
 use App\Workshop;
 use App\WorkshopMeta;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Modules\Newsletter\Entities\News;
@@ -13,6 +15,7 @@ use Modules\Newsletter\Entities\NewsNewsletter;
 use Modules\Newsletter\Entities\NewsReview;
 use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
+use phpDocumentor\Reflection\Types\Null_;
 use Symfony\Component\Workflow\Transition;
 use Workflow;
 use Illuminate\Http\Request;
@@ -58,6 +61,21 @@ class NewsService {
         }
         return  app(\App\Services\StockService::class);
     }
+
+    /**
+     * @throws CustomAuthorizationException
+     */
+    public function getNewsLetterWorkshop(){
+        $workshop = Workshop::where('code1','=','NSL')->first();
+        if(!$workshop){
+            throw new HttpResponseException(response()->json([
+                'status' => false,
+                'msg'    => "Unauthorised",
+            ], 403));
+        }
+        return $workshop;
+    }
+
 
     /**
      * @param $param
@@ -108,16 +126,16 @@ class NewsService {
     public function uploadNewsMedia($param) { // upload media according to media_type
         $cores=$this->core=NewsService::getInstance()->getCore();
         if(isset($param['request_media_type'])) {
-            if ($param['request_media_type'] == Config::get('nl_const.media_type.media_video')) { // video uploading
+            if ($param['request_media_type'] == Config::get('nl_const.news_media_type.news_media_video')) { // video uploading
                 $param ['media_url'] = $param['request_media_url'];
-                $param['media_type'] =Config::get('nl_const.media_type.media_video');
+                $param['media_type'] =Config::get('nl_const.news_media_type.news_media_video');
                 $param['media_thumbnail'] = $cores->fileUploadToS3($param['request_media_blob']);
-            } elseif ($param['request_media_type'] == Config::get('nl_const.media_type.media_image')) { // image from system uploading
-                $param['media_type'] = Config::get('nl_const.media_type.media_image');
+            } elseif ($param['request_media_type'] == Config::get('nl_const.news_media_type.news_media_image')) { // image from system uploading
+                $param['media_type'] = Config::get('nl_const.news_media_type.news_media_image');
                 $param ['media_url'] = $cores->fileUploadToS3($param['request_media_blob'], $param['request_media_type']);
                 $param['media_thumbnail'] = NUll;
             } else{ // media_type == 2 and adobe image uploading so we already have url,
-                $param['media_type'] = Config::get('nl_const.media_type.media_stock');
+                $param['media_type'] = Config::get('nl_const.news_media_type.news_media_stock');
                 $param ['media_url'] = ($param['request_media_url']);
                 $param['media_thumbnail'] = NULL;
             }

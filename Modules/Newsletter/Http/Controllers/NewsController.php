@@ -26,7 +26,7 @@ const  MASSAGE = 'Internal Server Error';
  * @package Modules\Newsletter\Http\Controllers
  */
 class NewsController extends Controller {
-
+    protected $getWorkshop;
     /**
      * @var NewsService|null
      */
@@ -75,15 +75,11 @@ class NewsController extends Controller {
                 if (!$auth) {
                     throw new CustomAuthorizationException('Sorry.You are not authorized.');
                 }
-                DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
                     $news = $this->newsService->getNewsByStatus($request->status);
-                DB::commit();
                     return NewsResource::collection($news)->additional(['status' => TRUE]);
             } catch (CustomAuthorizationException $exception) {
-                DB::rollback();
                 return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
             } catch (CustomValidationException $exception) {
-                DB::rollback();
                 return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
             }
         }
@@ -146,31 +142,31 @@ class NewsController extends Controller {
             if (!$auth) {
                 throw new CustomAuthorizationException('Sorry.You are not authorized.');
             }
-            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
-        if (Auth::user()->role == 'M1' || Auth::user()->role == 'M0') { // if user is super admin then all state of news
+            $this->getWorkshop=NewsService::getInstance();
+            $isAdmin=AuthorizationsService::getInstance();
+        if ($isAdmin->isUserSuperAdmin() == 1) { // if user is super admin then all state of news
             $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
-        }
-        $workshop = Workshop::with(['meta' => function ($q) {
+        }elseif ($workshop = Workshop::with(['meta' => function ($q) {
             $q->where('user_id', Auth::user()->id);
             $q->whereIn('role', [1, 2]);
-        }])->where('code1', 'NSL')->first();
-        if ($workshop) { // if user is Workshop admin then all state of news
-            if ($workshop->meta->count()) {
-                $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
-            } else {
-                // if user is workshop member then below state of news
-                $status = ['rejected', 'archived', 'validated'];
+        }])->where(function() {
+            return $this->getWorkshop->getNewsLetterWorkshop();
+        })->first()){
+            if ($workshop) { // if user is Workshop admin then all state of news
+                if ($workshop->meta->count()) {
+                    $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
+                } else {
+                    // if user is workshop member then below state of news
+                    $status = ['rejected', 'archived', 'validated'];
+                }
             }
-            }
-            $status=News::select('status', DB::raw('count(*) as total'))
+        }
+        $status=News::select('status', DB::raw('count(*) as total'))
                 ->groupBy('status')->whereIn('status',$status)->get();
-            DB::commit();
             return response()->json(['status' => TRUE, 'data' => $status], 200);
         } catch (CustomAuthorizationException $exception) {
-            DB::rollback();
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
         } catch (CustomValidationException $exception) {
-            DB::rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
@@ -206,5 +202,6 @@ class NewsController extends Controller {
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
+
 }
 

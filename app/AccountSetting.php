@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Newsletter\Entities;
+namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
