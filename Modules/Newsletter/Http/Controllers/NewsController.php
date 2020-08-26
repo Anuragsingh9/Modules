@@ -84,7 +84,7 @@ class NewsController extends Controller {
             }
         }
 
-
+//__('news_moderation_disabled','News')
     /**
      * @param NewsUpdateRequest $request
      * @return JsonResponse|NewsResource

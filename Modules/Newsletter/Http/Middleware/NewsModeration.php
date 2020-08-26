@@ -16,11 +16,11 @@ class NewsModeration
     public function handle(Request $request, Closure $next)
     {
         $enable=AccountSetting::where('account_id','=',1)->first();
-        if(isset($enable->setting['news_moderation'])){
-            if($enable->setting['news_moderation'] == 1){
+        if(isset($enable->setting['news_moderation']) && isset($enable->setting['newsletter_menu_enable'])){
+            if($enable->setting['news_moderation'] == 1 && $enable->setting['newsletter_menu_enable'] == 1 ){
                 return $next($request);
             }
         }
-        return response()->json(['status' => FALSE, 'msg' => __('newsletter::message.news_moderation_disabled')],401);
+        return response()->json(['status' => FALSE, 'msg' => __('newsletter::message.news_moderation_disabled',['attribute' => 'News'])],401);
     }
 }
