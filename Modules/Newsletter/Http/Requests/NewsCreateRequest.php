@@ -5,6 +5,7 @@ namespace Modules\Newsletter\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Modules\Newsletter\Exceptions\CustomValidationException;
 use Modules\Newsletter\Rules\LangRule;
 use Modules\Newsletter\Services\AuthorizationsService;
 /**
@@ -40,10 +41,7 @@ class NewsCreateRequest extends FormRequest  {
     }
 
     protected function failedValidation(Validator $validator) {
-        throw new HttpResponseException(response()->json([
-            'status' => false,
-            'msg'    => implode(',', $validator->errors()->all())
-        ], 422));
+       throw new CustomValidationException('language','','message');
     }
 
     protected function getValidatorInstance() {

@@ -16,7 +16,7 @@ class CoreController extends Controller
         return $instance;
     }
 
-    public function fileUploadToS3($blob,$type)
+    public function fileUploadToS3($blob)
     {
         $path = config('newsletter.s3.news_image');
         $fileName = time() . '.' . $blob->getClientOriginalExtension();

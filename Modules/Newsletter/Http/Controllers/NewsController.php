@@ -14,12 +14,12 @@ use Modules\Newsletter\Exceptions\CustomValidationException;
 use Modules\Newsletter\Http\Requests\NewsCreateRequest;
 use Modules\Newsletter\Http\Requests\NewsDeleteRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
+use Modules\Newsletter\Http\Requests\UserProfileUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
 use Modules\Newsletter\Services\AuthorizationsService;
 use Modules\Newsletter\Services\NewsService;
 use Modules\Newsletter\Transformers\NewsResource;
 const  MASSAGE = 'Internal Server Error';
-
 /**
  * This class have all the logics related to News
  * Class NewsController
@@ -73,7 +73,7 @@ class NewsController extends Controller {
             try {
                 $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
                 if (!$auth) {
-                    throw new CustomAuthorizationException('Sorry.You are not authorized.');
+                    throw new CustomAuthorizationException('Unauthorised');
                 }
                     $news = $this->newsService->getNewsByStatus($request->status);
                     return NewsResource::collection($news)->additional(['status' => TRUE]);
@@ -84,10 +84,10 @@ class NewsController extends Controller {
             }
         }
 
-//__('news_moderation_disabled','News')
     /**
      * @param NewsUpdateRequest $request
      * @return JsonResponse|NewsResource
+     * @throws \CustomValidationException
      */
     public function update(NewsUpdateRequest $request) { // update  news
         try {
@@ -140,7 +140,7 @@ class NewsController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Sorry.You are not authorized.');
+                throw new CustomAuthorizationException('Unauthorised');
             }
             $this->getWorkshop=NewsService::getInstance();
             $isAdmin=AuthorizationsService::getInstance();
@@ -200,6 +200,40 @@ class NewsController extends Controller {
         }catch (\Exception $e) {
             DB::rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
+        }
+    }
+
+    public function newsToNewsLetter(Request $request){
+        try{
+//            $this->newsService->
+        }catch (CustomValidationException $exception){
+            return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
+        }
+    }
+
+
+    public function updated(Request $request) { // update  news
+        try {
+            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            $param = [
+                'fname'       => $request->fname,
+                'lname'      => $request->lname,
+                'email' => $request->email,
+            ];
+            if ($request->has('avatar')) { // if update news has media then  $params will be prepared
+                $params = [
+                    'request_avatar' => $request->has('avatar') ? $request->avatar : null,
+                ];
+            }
+            if (isset($params)) { // if has media then it will merge the two array
+                $param = array_merge($param, $params); // if update has media then merging media $params with $param
+            }
+            $event = $this->newsService->updated($param);
+            return $event;
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollback();
+            return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
 

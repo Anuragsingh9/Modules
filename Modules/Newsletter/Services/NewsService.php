@@ -86,7 +86,7 @@ class NewsService {
         $param= $this->uploadNewsMedia($param); //uploading media acoording to the media_type in $param
         $news = News::create($param);
         if (!$news) {
-            throw new CustomValidationException('News not created');
+            throw new CustomValidationException('news_create');
         }
         return $news;
     }
@@ -99,7 +99,7 @@ class NewsService {
     public function getNewsByStatus($status){ // news by status
         $news= News::where('status',$status)->get();
         if (count($news)==0) {
-            throw new CustomValidationException(__('news_moderation_disabled'));
+            throw new CustomValidationException('exists','status');
         }
         return $news;
     }
@@ -114,10 +114,19 @@ class NewsService {
         $param= $this->uploadNewsMedia($param);
         $news = News::where('id', $id)->update($param);
         if (!$news) {
-            throw new CustomValidationException('News not updated');
+            throw new CustomValidationException('exists','news');
         }
         return  News::find($id);
     }
+
+    public function updated($param) { // updating news
+
+        $param= $this->uploadAvatar($param);
+
+        return User::where('id',Auth::user()->id)->update($param);
+
+    }
+
 
     /**
      * @param $param
@@ -141,6 +150,19 @@ class NewsService {
             }
             // unset these value as they are not in fillables
             unset ($param['request_media_url'],$param['request_media_blob'],$param['request_media_type']);
+        }
+        return $param;
+    }
+
+    public function uploadAvatar($param)
+    {
+        $cores = $this->core = NewsService::getInstance()->getCore();
+        if (isset($param['request_avatar'])) {
+//            $path = config('newsletter.s3.news_image');
+            $param['avatar'] = $cores->fileUploadToS3($param['request_avatar']);
+
+            // unset these value as they are not in fillables
+            unset ($param['request_avatar']);
         }
         return $param;
     }
@@ -187,9 +209,6 @@ class NewsService {
      */
     public function delete($Id){
         $news=News::find($Id);
-        if (count($news) == 0) {
-            throw new CustomValidationException('No News Found To Delete!!');
-        }
         $news->reviews()->delete();
         $news->delete();
     }

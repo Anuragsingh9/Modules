@@ -21,6 +21,6 @@ class NewsModeration
                 return $next($request);
             }
         }
-        return response()->json(['status' => FALSE, 'msg' => __('newsletter::message.news_moderation_disabled',['attribute' => 'News'])],401);
+        return response()->json(['status' => FALSE, 'msg' => __('authorization')],401);
     }
 }

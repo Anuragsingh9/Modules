@@ -4,7 +4,6 @@ namespace Modules\Newsletter\Services;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Modules\Newsletter\Entities\NewsReview;
-use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
 
 /**
@@ -34,7 +33,7 @@ class ReviewService {
         $review = NewsReview::create(
             $param);
         if (!$review){
-            throw new CustomValidationException('Review not created');
+            throw new CustomValidationException('exists','news');
         }
         return $review;
     }
@@ -46,14 +45,14 @@ class ReviewService {
      * @return mixed
      * @throws Exception
      */
-    public function update($param, $newsId,$reveiwable) { // updating review
+    public function update($param, $newsId,$reviewable) { // updating review
         $review = NewsReview::where(
             ['reviewable_id'   => $newsId,
              'reviewed_by'     => Auth::user()->id,
-             'reviewable_type' => $reveiwable
+             'reviewable_type' => $reviewable
             ])->first();
         if (!$review->update($param)){
-            throw new CustomValidationException('Review not updated');
+            throw new CustomValidationException(__('exists','news'));
         }
         return $review;
     }

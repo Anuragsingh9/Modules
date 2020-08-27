@@ -18,9 +18,6 @@ use Modules\Newsletter\Services\ReviewService;
 use Modules\Newsletter\Transformers\NewsResource;
 use Modules\Newsletter\Transformers\ReviewByVisibleResource;
 use Modules\Newsletter\Transformers\ReviewResource;
-const  MASSAGE = 'Internal Server Error';
-const  UNAUTHORISED = 'Sorry.You are not authorized.';
-
 /**
  * This class have all the logics for getting reviews of a news
  * Class ReviewController
@@ -66,15 +63,15 @@ class ReviewController extends Controller {
      * @param $newsId
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function  getNewsReveiws($newsId){ // get all reviews of a news
+    public function  getNewsReviews($newsId){ // get all reviews of a news
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException();
+                throw new CustomAuthorizationException('Unauthorised');
             }
             $news = News::with('reviews')->find($newsId);
             if(!$news){
-                throw new CustomValidationException('No Review for this News');
+                throw new CustomValidationException('exists','news');
             }
             return ReviewResource::collection($news->reviews)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
@@ -91,9 +88,9 @@ class ReviewController extends Controller {
     public function send(ReviewSendRequest $request) { // sending review
         try {
             DB::connection('tenant')->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
-            $reveiwable =  News::class;
+            $reviewable =  News::class;
             $param = ['is_visible' => 1];  // setting review  is_vissible=0 to is_vissible=1
-            $review = $this->service->update($param, $request->news_id,$reveiwable);
+            $review = $this->service->update($param, $request->news_id,$reviewable);
             DB::connection('tenant')->commit();
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
@@ -110,14 +107,14 @@ class ReviewController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException(UNAUTHORISED);
+                throw new CustomAuthorizationException('Unauthorised');
             }
             $title=$request->key; // This is search keyword
             $result=News::with('reviewsCountByvisible')
                 ->where('title', 'LIKE',"%$title%")
                 ->orderBy('title', 'asc')->paginate(100);
             if(count($result) == 0){
-                throw new CustomValidationException('No News Found');
+                throw new CustomValidationException('exists','title');
             }
             return NewsResource::collection($result)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
@@ -128,18 +125,17 @@ class ReviewController extends Controller {
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function countReviewBySent() { // counting reivews reactions where is_vissible=1
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Sorry.You are not authorized.');
+                throw new CustomAuthorizationException(__('authorization'));
             }
             $result=News::with('reviewsCountByvisible')->get();
             if(!$result){
-                throw new CustomValidationException('No Newsd Found');
+                throw new CustomValidationException('exists','news');
             }
             return ReviewByVisibleResource::collection($result)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {

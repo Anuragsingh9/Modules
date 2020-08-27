@@ -1,5 +1,7 @@
 <?php
 
 return [
-    'news' => 'Moderation',
+    'news'              => 'Nouvelles',
+    'status'            =>'statut',
+    'title'             =>"titre de l'actualité",
 ];

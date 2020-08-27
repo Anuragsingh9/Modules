@@ -1,5 +1,7 @@
 <?php
 
 return [
-    'news' => 'News',
+    'news'                  => 'News',
+    'status'                =>'status',
+    'title'                 =>'news title',
 ];
