@@ -34,12 +34,13 @@ class AuthorizationsService extends Service {
 
     public function isUserSuperAdmin(){
         $role=['M0','M1'];
+
         foreach ($role as $roles){
             if(Auth::user()->role == $roles){
                 return TRUE;
             }
-            return FALSE;
         }
+        return FALSE;
     }
 
     /**

@@ -148,7 +148,7 @@ class NewsService {
         return $param;
     }
 
-    
+
 
     /**
      * @param $request
@@ -198,12 +198,16 @@ class NewsService {
 
 
     public function newsToNewsLetter($param){
-        $newsletter=NewsNewsletter::create($param);
-        if(!$newsletter){
-            throw new CustomValidationException('newsletter');
+        $find = NewsNewsletter::where(function ($q) use ($param){
+            $q->where('news_id',$param['news_id']);
+            $q->where('newsletter_id',$param['newsletter_id']);
+        })->first();
+        if(!$find){
+            return NewsNewsletter::create($param);
         }
-        return $newsletter;
+            throw new CustomValidationException('newsletter','news','message');
     }
+
 
 }
 

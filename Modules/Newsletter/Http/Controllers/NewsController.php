@@ -13,6 +13,7 @@ use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
 use Modules\Newsletter\Http\Requests\NewsCreateRequest;
 use Modules\Newsletter\Http\Requests\NewsDeleteRequest;
+use Modules\Newsletter\Http\Requests\NewsToNewsletterRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
 use Modules\Newsletter\Http\Requests\UserProfileUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
@@ -122,12 +123,12 @@ class NewsController extends Controller {
      */
     public function applyTransition(WorkflowTransitionRequest $request) { // Transition of news
         try {
-            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsletter);
-            DB::connection('tenant')->commit();
+            DB::commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::connection('tenant')->rollback();
+            DB::rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
@@ -203,20 +204,20 @@ class NewsController extends Controller {
         }
     }
 
-    public function newsToNewsLetter(Request $request){
+
+    public function newsToNewsLetter(NewsToNewsletterRequest $request){
         try{
             $param = [
                 'news_id'           =>$request->news_id,
-                'newsletter_id'     =>$request->newsleter_id,
+                'newsletter_id'     =>$request->newsletter_id,
             ];
-            $newsletter = $this->newsService->newsToNewsLetter($param);
-            return $newsletter;
+             $this->newsService->newsToNewsLetter($param);
+            $data = News::where('id',$request->news_id)->first();
+            return (new NewsResource($data))->additional(['status' => TRUE]);
         }catch (CustomValidationException $exception){
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
-
-
 
 }
 

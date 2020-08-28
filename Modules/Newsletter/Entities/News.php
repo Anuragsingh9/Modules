@@ -44,5 +44,9 @@ class News extends Model {
             ->groupBy('reviewable_id');
     }
 
+    public function newsletter() {
+        return $this->belongsTo(NewsNewsletter::class);
+    }
+
 
 }
