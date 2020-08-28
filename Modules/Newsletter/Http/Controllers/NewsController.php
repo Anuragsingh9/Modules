@@ -205,37 +205,18 @@ class NewsController extends Controller {
 
     public function newsToNewsLetter(Request $request){
         try{
-//            $this->newsService->
+            $param = [
+                'news_id'           =>$request->news_id,
+                'newsletter_id'     =>$request->newsleter_id,
+            ];
+            $newsletter = $this->newsService->newsToNewsLetter($param);
+            return $newsletter;
         }catch (CustomValidationException $exception){
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
 
 
-    public function updated(Request $request) { // update  news
-        try {
-            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
-            $param = [
-                'fname'       => $request->fname,
-                'lname'      => $request->lname,
-                'email' => $request->email,
-            ];
-            if ($request->has('avatar')) { // if update news has media then  $params will be prepared
-                $params = [
-                    'request_avatar' => $request->has('avatar') ? $request->avatar : null,
-                ];
-            }
-            if (isset($params)) { // if has media then it will merge the two array
-                $param = array_merge($param, $params); // if update has media then merging media $params with $param
-            }
-            $event = $this->newsService->updated($param);
-            return $event;
-            DB::commit();
-        } catch (\Exception $exception) {
-            DB::rollback();
-            return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
-        }
-    }
 
 }
 

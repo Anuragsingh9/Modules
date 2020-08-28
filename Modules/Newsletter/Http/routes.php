@@ -13,7 +13,7 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         Route::post('delete','NewsController@deleteNews');// delete news
         Route::post('news/stock/upload','NewsController@stockImageUpload');// stock image upload
         Route::get('news/workshop','NewsController@isUserSuperAdmin');
-        Route::post('updated','NewsController@updated');
+        Route::post('news/newsletter','NewsController@newsToNewsLetter');
 
     Route::group(['prefix' => 'review'], function () {
         Route::post('review/create', 'ReviewController@store'); // create review
@@ -24,5 +24,13 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         });
     });
 });
+
+Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter', 'namespace' => 'Modules\Cocktail\Http\Controllers'], function()
+{
+    Route::group(['prefix' => 'news'], function () {
+    Route::post('updated','UserController@update');
+    });
+});
+
 
 

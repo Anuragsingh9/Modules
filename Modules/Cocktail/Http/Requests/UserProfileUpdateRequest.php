@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Newsletter\Http\Requests;
+namespace Modules\Cocktail\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -15,7 +15,7 @@ class UserProfileUpdateRequest extends FormRequest
      */
     public function rules() {
         $requiredStringMax = function($max) {
-            return "required|string|regex:/[^a-zA-ZÀ-ÿ]/|max:".config("newsletter.validations.news.$max");
+            return "required|string|regex:/[^a-zA-ZÀ-ÿ]/|max:".config("Cocktail.validations.news.$max");
         };
         return [
             'id'     => [

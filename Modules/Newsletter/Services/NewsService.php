@@ -119,13 +119,7 @@ class NewsService {
         return  News::find($id);
     }
 
-    public function updated($param) { // updating news
 
-        $param= $this->uploadAvatar($param);
-
-        return User::where('id',Auth::user()->id)->update($param);
-
-    }
 
 
     /**
@@ -154,18 +148,7 @@ class NewsService {
         return $param;
     }
 
-    public function uploadAvatar($param)
-    {
-        $cores = $this->core = NewsService::getInstance()->getCore();
-        if (isset($param['request_avatar'])) {
-//            $path = config('newsletter.s3.news_image');
-            $param['avatar'] = $cores->fileUploadToS3($param['request_avatar']);
-
-            // unset these value as they are not in fillables
-            unset ($param['request_avatar']);
-        }
-        return $param;
-    }
+    
 
     /**
      * @param $request
@@ -211,6 +194,15 @@ class NewsService {
         $news=News::find($Id);
         $news->reviews()->delete();
         $news->delete();
+    }
+
+
+    public function newsToNewsLetter($param){
+        $newsletter=NewsNewsletter::create($param);
+        if(!$newsletter){
+            throw new CustomValidationException('newsletter');
+        }
+        return $newsletter;
     }
 
 }
