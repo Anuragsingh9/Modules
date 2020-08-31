@@ -13,6 +13,7 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         Route::post('delete','NewsController@deleteNews');// delete news
         Route::post('news/stock/upload','NewsController@stockImageUpload');// stock image upload
         Route::post('news/newsletter','NewsController@newsToNewsLetter');
+        Route::post('delete/newsletter','NewsController@deleteNewsLetter');
 
     Route::group(['prefix' => 'review'], function () {
         Route::post('review/create', 'ReviewController@store'); // create review

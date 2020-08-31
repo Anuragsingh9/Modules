@@ -61,7 +61,7 @@ class NewsService {
         if(!$workshop){
             throw new HttpResponseException(response()->json([
                 'status' => false,
-                'msg'    => "Unauthorised",
+                'msg'    => "Unauthoriszed",
             ], 403));
         }
         return $workshop;
@@ -146,11 +146,11 @@ class NewsService {
      * @return array
      */
     public function uploadStockImage($request){
-        $cores=$this->core=NewsService::getInstance()->$this->getCore();
-        $services=$this->service=NewsService::getInstance()->$this->getService();
+        $cores=$this->getCore();
+        $stockService=$this->getService();
         $path = config('newsletter.s3.news_image');
         $visibility = 'public';
-        $path=$services->uploadImage($request,$path,$visibility);
+        $path=$stockService->uploadImage($request,$path,$visibility);
         $mediaUrl= $cores->getS3Parameter($path);
         return [
             'url'=>$mediaUrl,
@@ -173,7 +173,6 @@ class NewsService {
             'news_id'=>$newsId,
             'newsletter_id'=>$newsLetterId, // if transition name is send then newsletter_d will have value
         ];
-        NewsNewsletter::create($param);
         return $news;
     }
 
@@ -181,8 +180,8 @@ class NewsService {
      * @param $Id
      * @throws CustomValidationException
      */
-    public function delete($Id){
-        $news=News::find($Id);
+    public function delete($id){
+        $news=News::find($id);
         $news->reviews()->delete();
         $news->delete();
     }
@@ -197,6 +196,11 @@ class NewsService {
             return NewsNewsletter::create($param);
         }
             throw new CustomValidationException('newsletter','news','message');
+    }
+
+    public function deleteNewsLetter($newsId,$newsLetterID){
+        $news=NewsNewsletter::where('news_id',$newsId)->where('newsletter_id',$newsLetterID)->first();
+        $news->delete();
     }
 
 }

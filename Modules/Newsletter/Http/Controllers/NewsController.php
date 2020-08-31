@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Newsletter\Entities\News;
 use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
+use Modules\Newsletter\Http\Requests\DeleteNewsLetterRequest;
 use Modules\Newsletter\Http\Requests\NewsCreateRequest;
 use Modules\Newsletter\Http\Requests\NewsDeleteRequest;
 use Modules\Newsletter\Http\Requests\NewsToNewsletterRequest;
@@ -26,10 +27,6 @@ const  MASSAGE = 'Internal Server Error';
  * @package Modules\Newsletter\Http\Controllers
  */
 class NewsController extends Controller {
-    protected $getWorkshop;
-    /**
-     * @var NewsService|null
-     */
 
     private $newsService;
 
@@ -142,7 +139,6 @@ class NewsController extends Controller {
             if (!$auth) {
                 throw new CustomAuthorizationException('Unauthorized');
             }
-            $this->getWorkshop=NewsService::getInstance();
             $isAdmin=AuthorizationsService::getInstance();
         if ($isAdmin->isUserSuperAdmin() == 1) { // if user is super admin then all state of news
             $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
@@ -150,7 +146,7 @@ class NewsController extends Controller {
             $q->where('user_id', Auth::user()->id);
             $q->whereIn('role', [1, 2]);
         }])->where(function() {
-            return $this->getWorkshop->getNewsLetterWorkshop();
+            return $this->newsService->getNewsLetterWorkshop();
         })->first()){
             if ($workshop) { // if user is Workshop admin then all state of news
                 if ($workshop->meta->count()) {
@@ -180,7 +176,7 @@ class NewsController extends Controller {
             DB::connection()->beginTransaction();
             $this->newsService->delete($request->news_id);
             DB::connection()->commit();
-            return response()->json(['status' => TRUE], 200);
+            return response()->json(['status' => TRUE,'data' =>"News Deleted"], 200);
         } catch (\Exception $e) {
             DB::connection()->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
@@ -215,6 +211,19 @@ class NewsController extends Controller {
             return (new NewsResource($data))->additional(['status' => TRUE]);
         }catch (CustomValidationException $exception){
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
+        }
+    }
+
+    public function deleteNewsLetter(DeleteNewsLetterRequest $request )
+    {
+        try {
+            DB::beginTransaction();
+            $this->newsService->deleteNewsLetter($request->news_id,$request->newsletter_id);
+            DB::commit();
+            return response()->json(['status' => TRUE,'data'=>'Newsletter Deleted'], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
 
