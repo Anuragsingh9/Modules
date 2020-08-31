@@ -15,7 +15,6 @@ use Modules\Newsletter\Http\Requests\NewsCreateRequest;
 use Modules\Newsletter\Http\Requests\NewsDeleteRequest;
 use Modules\Newsletter\Http\Requests\NewsToNewsletterRequest;
 use Modules\Newsletter\Http\Requests\NewsUpdateRequest;
-use Modules\Newsletter\Http\Requests\UserProfileUpdateRequest;
 use Modules\Newsletter\Http\Requests\WorkflowTransitionRequest;
 use Modules\Newsletter\Services\AuthorizationsService;
 use Modules\Newsletter\Services\NewsService;
@@ -45,7 +44,7 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) { // create news
         try {
-            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::connection()->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'              => $request->title,
                 'header'             => $request->header,
@@ -57,10 +56,10 @@ class NewsController extends Controller {
                 'request_media_blob' => $request->media_blob,
             ];
             $news = $this->newsService->createNews($param);
-            DB::commit();
+            DB::connection()->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
-            DB::rollback();
+            DB::connection()->rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
@@ -74,7 +73,7 @@ class NewsController extends Controller {
             try {
                 $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
                 if (!$auth) {
-                    throw new CustomAuthorizationException('Unauthorised');
+                    throw new CustomAuthorizationException('Unauthorized');
                 }
                     $news = $this->newsService->getNewsByStatus($request->status);
                     return NewsResource::collection($news)->additional(['status' => TRUE]);
@@ -88,11 +87,11 @@ class NewsController extends Controller {
     /**
      * @param NewsUpdateRequest $request
      * @return JsonResponse|NewsResource
-     * @throws \CustomValidationException
+     * @throws \Exception
      */
     public function update(NewsUpdateRequest $request) { // update  news
         try {
-            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::connection()->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'       => $request->title,
                 'header'      => $request->header,
@@ -109,10 +108,10 @@ class NewsController extends Controller {
                 $param = array_merge($param, $params); // if update has media then merging media $params with $param
             }
             $news = $this->newsService->update($request->news_id, $param);
-            DB::commit();
+            DB::connection()->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
-            DB::rollback();
+            DB::connection()->rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
@@ -123,12 +122,12 @@ class NewsController extends Controller {
      */
     public function applyTransition(WorkflowTransitionRequest $request) { // Transition of news
         try {
-            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::connection()->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsletter);
-            DB::commit();
+            DB::connection()->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection()->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
@@ -141,7 +140,7 @@ class NewsController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Unauthorised');
+                throw new CustomAuthorizationException('Unauthorized');
             }
             $this->getWorkshop=NewsService::getInstance();
             $isAdmin=AuthorizationsService::getInstance();
@@ -178,12 +177,12 @@ class NewsController extends Controller {
      */
     public function deleteNews(NewsDeleteRequest $request){// delete news
         try {
-            DB::beginTransaction();
+            DB::connection()->beginTransaction();
             $this->newsService->delete($request->news_id);
-            DB::commit();
+            DB::connection()->commit();
             return response()->json(['status' => TRUE], 200);
         } catch (\Exception $e) {
-            DB::rollback();
+            DB::connection()->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
@@ -192,14 +191,14 @@ class NewsController extends Controller {
      * @param Request $request
      * @return JsonResponse
      */
-    public function stockImageUpload(Request $request){
+    public function stockImageUpload(Request $request){ // Method is uploading the stock image
         try{
-            DB::beginTransaction();
+            DB::connection()->beginTransaction();
             $this->newsService->uploadStockImage($request);
-            DB::commit();
+            DB::connection()->commit();
             return response()->json(['status' => TRUE], 200);
         }catch (\Exception $e) {
-            DB::rollback();
+            DB::connection()->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }

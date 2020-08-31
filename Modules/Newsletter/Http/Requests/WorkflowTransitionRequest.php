@@ -23,7 +23,7 @@ class WorkflowTransitionRequest extends FormRequest {
         return [
             "newsletter" => "required_if:transition_name,==,send", // if transition name is send then newsletter will be required
             'news_id'         => ['required',
-                Rule::exists('news_info', 'id')
+                Rule::exists('tenant.news_info', 'id')
                     ->whereNull('deleted_at')],
             'transition_name' => ['required'],
         ];
@@ -49,7 +49,7 @@ class WorkflowTransitionRequest extends FormRequest {
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorised",
+            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorized",
         ], 403));
     }
 }

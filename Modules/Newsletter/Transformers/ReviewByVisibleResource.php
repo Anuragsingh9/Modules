@@ -24,7 +24,7 @@ class ReviewByVisibleResource extends Resource {
             'description'             => $this->description,
             'status'                  => $this->status,
             'review_id'               => $this->id,
-            'reviews_by_visible'   => $this->reviewsCountByvisible,
+            'reviews_by_visible'      => $this->reviewsCountByvisible,
             ];
 
     }

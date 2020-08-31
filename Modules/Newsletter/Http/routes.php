@@ -12,7 +12,6 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         Route::post('transition', 'NewsController@applyTransition');// apply Transition
         Route::post('delete','NewsController@deleteNews');// delete news
         Route::post('news/stock/upload','NewsController@stockImageUpload');// stock image upload
-        Route::get('news/workshop','NewsController@isUserSuperAdmin');
         Route::post('news/newsletter','NewsController@newsToNewsLetter');
 
     Route::group(['prefix' => 'review'], function () {
@@ -20,17 +19,11 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         Route::get('getnews/review/{newsId}','ReviewController@getNewsReviews');// get review of a news
         Route::get('searchNews','ReviewController@searchNews');// Search news by Title
         Route::put('review/update/send', 'ReviewController@send');// update review
-        Route::get('review/count/vissible','ReviewController@countReviewBySent');// get  count of review with reactions where is_visible=1
+        Route::get('review/count/visible','ReviewController@countReviewBySent');// get  count of review with reactions where is_visible=1
         });
     });
 });
 
-Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter', 'namespace' => 'Modules\Cocktail\Http\Controllers'], function()
-{
-    Route::group(['prefix' => 'news'], function () {
-    Route::post('updated','UserController@update');
-    });
-});
 
 
 

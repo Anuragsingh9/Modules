@@ -22,7 +22,7 @@ class ReviewAddRequest extends FormRequest {
            'review_reaction' => 'required|in:0,1,2',
             'review_text'    =>'required_if:review_reaction,0,1',
            'news_id'         => ['required',
-               Rule::exists('news_info', 'id')->whereNull('deleted_at'),
+               Rule::exists('tenant.news_info', 'id')->whereNull('deleted_at'),
            ],
         ];
     }
@@ -47,7 +47,7 @@ class ReviewAddRequest extends FormRequest {
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorised",
+            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorized",
         ], 403));
     }
 }

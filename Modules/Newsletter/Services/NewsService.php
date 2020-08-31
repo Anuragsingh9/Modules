@@ -2,23 +2,14 @@
 
 namespace Modules\Newsletter\Services;
 use App\Services\StockService;
-use App\User;
 use App\Workshop;
-use App\WorkshopMeta;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Modules\Newsletter\Entities\News;
 use Exception;
 use Modules\Newsletter\Entities\NewsNewsletter;
-use Modules\Newsletter\Entities\NewsReview;
 use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
-use phpDocumentor\Reflection\Types\Null_;
-use Symfony\Component\Workflow\Transition;
 use Workflow;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 /**
  * This class is performing all the actions of News
@@ -161,7 +152,7 @@ class NewsService {
         $visibility = 'public';
         $path=$services->uploadImage($request,$path,$visibility);
         $mediaUrl= $cores->getS3Parameter($path);
-        return $url =[
+        return [
             'url'=>$mediaUrl,
             'path'=>$path,
         ];
@@ -207,7 +198,6 @@ class NewsService {
         }
             throw new CustomValidationException('newsletter','news','message');
     }
-
 
 }
 

@@ -19,7 +19,7 @@ class NewsToNewsletterRequest extends FormRequest
     public function rules()
     {
         return [
-            'newsletter_id'     =>['required',Rule::exists('newsletters','id')
+            'newsletter_id'     =>['required',Rule::exists('tenant.newsletters','id')
                                 ->whereNull('deleted_at')],
             'news_id'           =>['required',Rule::exists('news_info','id')
                 ->whereNull('deleted_at')->where(function ($q){
@@ -42,7 +42,7 @@ class NewsToNewsletterRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorised",
+            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorized",
         ], 403));
     }
 

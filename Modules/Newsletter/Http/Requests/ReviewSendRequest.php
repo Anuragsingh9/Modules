@@ -51,7 +51,7 @@ class ReviewSendRequest extends FormRequest {
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorised",
+            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorized",
         ], 403));
     }
 }
