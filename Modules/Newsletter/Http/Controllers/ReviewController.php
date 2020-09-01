@@ -2,7 +2,6 @@
 
 namespace Modules\Newsletter\Http\Controllers;
 
-use Modules\Newsletter\Entities\AccountSetting;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -87,18 +86,18 @@ class ReviewController extends Controller {
      */
     public function send(ReviewSendRequest $request) { // sending review
         try {
-            DB::connection()->connection('tenant')->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $reviewable =  News::class;
             $param = ['is_visible' => 1];  // setting review  is_vissible=0 to is_vissible=1
             $review = $this->service->update($param, $request->news_id,$reviewable);
-            DB::connection()->connection('tenant')->commit();
+            DB::commit();
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
-            DB::connection()->rollback();
+            DB::rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
-
+//connection('tenant')->
     /**
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection

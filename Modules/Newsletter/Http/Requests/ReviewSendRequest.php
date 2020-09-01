@@ -8,6 +8,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Modules\Newsletter\Entities\News;
+use Modules\Newsletter\Exceptions\CustomValidationException;
 use Modules\Newsletter\Services\AuthorizationsService;
 
 /**
@@ -23,8 +24,8 @@ class ReviewSendRequest extends FormRequest {
         return [
             'news_id' => [
                 'required',
-                Rule::exists('tenant.news_info', 'id')->whereNull('deleted_at'),
-                Rule::exists('tenant.news_reviews', 'reviewable_id')->where(function ($q) {
+                Rule::exists('news_info', 'id')->whereNull('deleted_at'),
+                Rule::exists('news_reviews', 'reviewable_id')->where(function ($q) {
                     $q->where('reviewed_by', Auth::user()->id);
                     $q->where('reviewable_type', News::class);
                 })
@@ -40,6 +41,9 @@ class ReviewSendRequest extends FormRequest {
         return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
     }
 
+    /**
+     * @param Validator $validator
+     */
     protected function failedValidation(Validator $validator) {
         throw new HttpResponseException(response()->json([
             'status' => false,
@@ -47,11 +51,12 @@ class ReviewSendRequest extends FormRequest {
         ], 422));
     }
 
+    /**
+     * @throws CustomValidationException
+     */
     public function failedAuthorization()
     {
-        throw new HttpResponseException(response()->json([
-            'status' => false,
-            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorized",
-        ], 403));
+        throw new CustomValidationException('auth','','message');
+
     }
 }

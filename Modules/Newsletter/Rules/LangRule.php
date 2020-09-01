@@ -35,6 +35,6 @@ class LangRule implements Rule
      */
     public function message()
     {
-        __('language');
+       return __('newsletter::language');
     }
 }

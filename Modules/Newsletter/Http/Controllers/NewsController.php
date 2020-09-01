@@ -88,7 +88,7 @@ class NewsController extends Controller {
      */
     public function update(NewsUpdateRequest $request) { // update  news
         try {
-            DB::connection()->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'       => $request->title,
                 'header'      => $request->header,
@@ -105,14 +105,14 @@ class NewsController extends Controller {
                 $param = array_merge($param, $params); // if update has media then merging media $params with $param
             }
             $news = $this->newsService->update($request->news_id, $param);
-            DB::connection()->commit();
+            DB::commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
-            DB::connection()->rollback();
+            DB::rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
-
+//connection()->
     /**
      * @param WorkflowTransitionRequest $request
      * @return JsonResponse|NewsResource
@@ -120,7 +120,7 @@ class NewsController extends Controller {
     public function applyTransition(WorkflowTransitionRequest $request) { // Transition of news
         try {
             DB::connection()->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
-            $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name,$request->newsletter);
+            $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name);
             DB::connection()->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
@@ -176,7 +176,7 @@ class NewsController extends Controller {
             DB::connection()->beginTransaction();
             $this->newsService->delete($request->news_id);
             DB::connection()->commit();
-            return response()->json(['status' => TRUE,'data' =>"News Deleted"], 200);
+            return response()->json(['status' => TRUE,'data' =>__('newsletter::message.deleted_news')], 200);
         } catch (\Exception $e) {
             DB::connection()->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
@@ -199,7 +199,10 @@ class NewsController extends Controller {
         }
     }
 
-
+    /**
+     * @param NewsToNewsletterRequest $request
+     * @return JsonResponse|NewsResource
+     */
     public function newsToNewsLetter(NewsToNewsletterRequest $request){
         try{
             $param = [
@@ -214,13 +217,17 @@ class NewsController extends Controller {
         }
     }
 
+    /**
+     * @param DeleteNewsLetterRequest $request
+     * @return JsonResponse
+     */
     public function deleteNewsLetter(DeleteNewsLetterRequest $request )
     {
         try {
             DB::beginTransaction();
             $this->newsService->deleteNewsLetter($request->news_id,$request->newsletter_id);
             DB::commit();
-            return response()->json(['status' => TRUE,'data'=>'Newsletter Deleted'], 200);
+            return response()->json(['status' => TRUE,'data'=> __('newsletter::message.deleted_newsletter')], 200);
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);

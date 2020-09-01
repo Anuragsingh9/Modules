@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
+use Modules\Newsletter\Exceptions\CustomValidationException;
 use Modules\Newsletter\Services\AuthorizationsService;
 
 /**
@@ -21,9 +22,9 @@ class WorkflowTransitionRequest extends FormRequest {
     public function rules() {
 
         return [
-            "newsletter" => "required_if:transition_name,==,send", // if transition name is send then newsletter will be required
+//            "newsletter" => "required_if:transition_name,==,send", // if transition name is send then newsletter will be required
             'news_id'         => ['required',
-                Rule::exists('tenant.news_info', 'id')
+                Rule::exists('news_info', 'id')
                     ->whereNull('deleted_at')],
             'transition_name' => ['required'],
         ];
@@ -38,6 +39,9 @@ class WorkflowTransitionRequest extends FormRequest {
         return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([1,2]);
     }
 
+    /**
+     * @param Validator $validator
+     */
     protected function failedValidation(Validator $validator) {
         throw new HttpResponseException(response()->json([
             'status' => false,
@@ -45,11 +49,11 @@ class WorkflowTransitionRequest extends FormRequest {
         ], 422));
     }
 
+    /**
+     * @throws CustomValidationException
+     */
     public function failedAuthorization()
     {
-        throw new HttpResponseException(response()->json([
-            'status' => false,
-            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorized",
-        ], 403));
+        throw new CustomValidationException('auth','','message');
     }
 }

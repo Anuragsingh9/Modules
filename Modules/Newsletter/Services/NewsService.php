@@ -54,15 +54,13 @@ class NewsService {
     }
 
     /**
-     * @throws CustomAuthorizationException
+     * @return mixed
+     * @throws CustomValidationException
      */
     public function getNewsLetterWorkshop(){
         $workshop = Workshop::where('code1','=','NSL')->first();
         if(!$workshop){
-            throw new HttpResponseException(response()->json([
-                'status' => false,
-                'msg'    => "Unauthoriszed",
-            ], 403));
+            throw new CustomValidationException('auth','','message');
         }
         return $workshop;
     }
@@ -77,7 +75,7 @@ class NewsService {
         $param= $this->uploadNewsMedia($param); //uploading media acoording to the media_type in $param
         $news = News::create($param);
         if (!$news) {
-            throw new CustomValidationException('news_create');
+            throw new CustomValidationException('news_create','news','message');
         }
         return $news;
     }
@@ -87,7 +85,7 @@ class NewsService {
      * @return mixed
      * @throws CustomValidationException
      */
-    public function getNewsByStatus($status){ // news by status
+    public function getNewsByStatus($status){ // get all news of a given status
         $news= News::where('status',$status)->get();
         if (count($news)==0) {
             throw new CustomValidationException('exists','status');
@@ -161,44 +159,46 @@ class NewsService {
     /**
      * @param integer $newsId
      * @param string $transitionName
-     * @param integer $newsLetterId
      * @return News
      */
-    public function applyTransitions($newsId, $transitionName,$newsLetterId) {
+    public function applyTransitions($newsId, $transitionName) {
         $news = News::findOrFail($newsId);
         $workflow = Workflow::get($news,'news_status');
         $workflow->apply($news, $transitionName); // applying transition
         $news->save();
-        $param=[
-            'news_id'=>$newsId,
-            'newsletter_id'=>$newsLetterId, // if transition name is send then newsletter_d will have value
-        ];
         return $news;
     }
 
     /**
-     * @param $Id
+     * @param $param
+     * @return mixed
      * @throws CustomValidationException
      */
-    public function delete($id){
-        $news=News::find($id);
-        $news->reviews()->delete();
-        $news->delete();
-    }
-
-
     public function newsToNewsLetter($param){
         $find = NewsNewsletter::where(function ($q) use ($param){
             $q->where('news_id',$param['news_id']);
             $q->where('newsletter_id',$param['newsletter_id']);
         })->first();
-        if(!$find){
+        if(!$find){ // if news_id and newsletter_id is not found then we can create new news To newsletter relation
             return NewsNewsletter::create($param);
         }
             throw new CustomValidationException('newsletter','news','message');
     }
 
-    public function deleteNewsLetter($newsId,$newsLetterID){
+    /**
+     * @param $id
+     */
+    public function delete($id){ // deleting all reviews of given news when news is deleted
+        $news=News::find($id);
+        $news->reviews()->delete(); // delete all reviews of given news
+        $news->delete(); // deleting news
+    }
+
+    /**
+     * @param $newsId
+     * @param $newsLetterID
+     */
+    public function deleteNewsLetter($newsId,$newsLetterID){ // delete news to newsletter relation
         $news=NewsNewsletter::where('news_id',$newsId)->where('newsletter_id',$newsLetterID)->first();
         $news->delete();
     }

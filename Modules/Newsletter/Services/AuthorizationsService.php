@@ -10,6 +10,7 @@ use App\Services\Service;
 use Modules\Newsletter\Entities\News;
 use App\WorkshopMeta;
 use Exception;
+use Modules\Newsletter\Exceptions\CustomValidationException;
 
 /**
  * This class checks weather user is belongs to Workshop
@@ -63,19 +64,22 @@ class AuthorizationsService extends Service {
             if($workshopDetails){
                 return true;
             }
-        }else{
-            return false;
         }
         }
+        return false;
     }
 
     /**
      * @param $newsId
      * @return bool
+     * @throws CustomValidationException
      */
     public function isUserBelongsToNews($newsId){
         $news = News::where('id',$newsId)->first();
-        if(Auth::user()->role =='M1' || Auth::user()->role =='M0'  ){
+        if(!$news){
+            throw new CustomValidationException('exists','news');
+        }
+        if(Auth::user()->role =='M1' || Auth::user()->role =='M0'){
             return true;
         }elseif(Auth::user()->id == $news->created_by){
             return true;

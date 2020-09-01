@@ -40,10 +40,17 @@ class NewsCreateRequest extends FormRequest  {
         return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([1,2]);
     }
 
+    /**
+     * @param Validator $validator
+     * @throws CustomValidationException
+     */
     protected function failedValidation(Validator $validator) {
        throw new CustomValidationException('language','','message');
     }
 
+    /**
+     * @return Validator
+     */
     protected function getValidatorInstance() {
         $validator = parent::getValidatorInstance();
         $validator->sometimes('media_url', 'required|string', function () {
@@ -54,12 +61,13 @@ class NewsCreateRequest extends FormRequest  {
         });
         return $validator;
     }
+
+    /**
+     * @throws CustomValidationException
+     */
     public function failedAuthorization()
     {
-        throw new HttpResponseException(response()->json([
-            'status' => false,
-            'msg'    => $this->authorizationMessage ? $this->authorizationMessage : "Unauthorized",
-        ], 403));
+        throw new CustomValidationException('auth','','message');
     }
 }
 
