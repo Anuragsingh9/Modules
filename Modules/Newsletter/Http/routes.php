@@ -12,8 +12,8 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         Route::post('transition', 'NewsController@applyTransition');// apply Transition
         Route::post('delete','NewsController@deleteNews');// delete news
         Route::post('news/stock/upload','NewsController@stockImageUpload');// stock image upload
-        Route::post('news/newsletter','NewsController@newsToNewsLetter');
-        Route::post('delete/newsletter','NewsController@deleteNewsLetter');
+        Route::post('news/newsletter','NewsController@newsToNewsLetter');// create relation between news to newsletter
+        Route::post('delete/newsletter','NewsController@deleteNewsLetter');// delete newsletter
 
     Route::group(['prefix' => 'review'], function () {
         Route::post('review/create', 'ReviewController@store'); // create review

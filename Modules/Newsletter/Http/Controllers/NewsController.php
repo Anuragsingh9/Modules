@@ -70,7 +70,7 @@ class NewsController extends Controller {
             try {
                 $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
                 if (!$auth) {
-                    throw new CustomAuthorizationException('Unauthorized');
+                    throw new CustomAuthorizationException('Unauthorized Action');
                 }
                     $news = $this->newsService->getNewsByStatus($request->status);
                     return NewsResource::collection($news)->additional(['status' => TRUE]);
@@ -135,7 +135,7 @@ class NewsController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Unauthorized');
+                throw new CustomAuthorizationException('Unauthorized Action');
             }
             $isAdmin=AuthorizationsService::getInstance();
         if ($isAdmin->isUserSuperAdmin() == 1) { // if user is super admin then all state of news

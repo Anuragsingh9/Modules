@@ -66,7 +66,7 @@ class ReviewController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Unauthorised');
+                throw new CustomAuthorizationException('Unauthorized Action');
             }
             $news = News::with('reviews')->find($newsId);
             if(!$news){
@@ -106,7 +106,7 @@ class ReviewController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Unauthorised');
+                throw new CustomAuthorizationException('Unauthorized Action');
             }
             $title=$request->key; // This is search keyword
             $result=News::with('reviewsCountByvisible')

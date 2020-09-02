@@ -79,12 +79,12 @@ class AuthorizationsService extends Service {
         if(!$news){
             throw new CustomValidationException('exists','news');
         }
-        if(Auth::user()->role =='M1' || Auth::user()->role =='M0'){
+        if($this->isUserSuperAdmin() == 1){
             return true;
         }elseif(Auth::user()->id == $news->created_by){
             return true;
         }else{
-            return $this->isUserBelongsToWorkshop([0,1,2]);
+            return $this->isUserBelongsToWorkshop([1,2]);
         }
     }
 
