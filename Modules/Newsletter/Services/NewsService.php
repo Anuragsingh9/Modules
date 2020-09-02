@@ -82,15 +82,10 @@ class NewsService {
 
     /**
      * @param $status
-     * @return mixed
-     * @throws CustomValidationException
+     * @return News
      */
     public function getNewsByStatus($status){ // get all news of a given status
-        $news= News::where('status',$status)->get();
-        if (count($news)==0) {
-            throw new CustomValidationException('exists','status');
-        }
-        return $news;
+        return  News::where('status',$status)->get();
     }
     
     /**

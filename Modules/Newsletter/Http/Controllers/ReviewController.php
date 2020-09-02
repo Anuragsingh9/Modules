@@ -112,14 +112,9 @@ class ReviewController extends Controller {
             $result=News::with('reviewsCountByvisible')
                 ->where('title', 'LIKE',"%$title%")
                 ->orderBy('title', 'asc')->paginate(100);
-            if(count($result) == 0){
-                throw new CustomValidationException('exists','title');
-            }
             return NewsResource::collection($result)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
-        } catch (CustomValidationException $exception) {
-            return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
 
@@ -130,17 +125,12 @@ class ReviewController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException(__('authorization'));
+                throw new CustomAuthorizationException('Unauthorized Action');
             }
             $result=News::with('reviewsCountByvisible')->get();
-            if(!$result){
-                throw new CustomValidationException('exists','news');
-            }
             return ReviewByVisibleResource::collection($result)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
-        } catch (CustomValidationException $exception) {
-            return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
 }

@@ -76,8 +76,6 @@ class NewsController extends Controller {
                     return NewsResource::collection($news)->additional(['status' => TRUE]);
             } catch (CustomAuthorizationException $exception) {
                 return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
-            } catch (CustomValidationException $exception) {
-                return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
             }
         }
 
