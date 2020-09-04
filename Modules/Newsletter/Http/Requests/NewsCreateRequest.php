@@ -42,10 +42,12 @@ class NewsCreateRequest extends FormRequest  {
 
     /**
      * @param Validator $validator
-     * @throws CustomValidationException
      */
     protected function failedValidation(Validator $validator) {
-       throw new CustomValidationException('language','','message');
+        throw new HttpResponseException(response()->json([
+            'status' => false,
+            'msg'    => implode(',', $validator->errors()->all())
+        ], 422));
     }
 
     /**

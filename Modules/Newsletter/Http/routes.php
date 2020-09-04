@@ -5,22 +5,22 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
     Route::get('/', 'NewsletterController@index');
 
     Route::group(['prefix' => 'news'], function () {
-        Route::post('add', 'NewsController@store');// add news
-        Route::get('getnews/bystatus','NewsController@getNews');// get all news of a specific  status
-        Route::get('getnews/status','NewsController@newsStatusCount');// get count of all news by status
-        Route::post('update', 'NewsController@update');// update the news
-        Route::post('transition', 'NewsController@applyTransition');// apply Transition
-        Route::post('delete','NewsController@deleteNews');// delete news
+        Route::post('add', 'NewsController@store')->name('news.create');// add news
+        Route::get('getnews/bystatus','NewsController@getNews')->name('news.byStatus');// get all news of a specific  status
+        Route::get('getnews/status','NewsController@newsStatusCount')->name('news.groupByStatus');// get count of all news by status
+        Route::post('update', 'NewsController@update')->name('news.update');// update the news
+        Route::post('transition', 'NewsController@applyTransition')->name('news.transition');// apply Transition
+        Route::post('delete','NewsController@deleteNews')->name('news.delete');// delete news
         Route::post('news/stock/upload','NewsController@stockImageUpload');// stock image upload
-        Route::post('news/newsletter','NewsController@newsToNewsLetter');// create relation between news to newsletter
+        Route::post('news/newsletter','NewsController@newsToNewsLetter')->name('news.createNewsletter');// create relation between news to newsletter
         Route::post('delete/newsletter','NewsController@deleteNewsLetter');// delete newsletter
 
     Route::group(['prefix' => 'review'], function () {
-        Route::post('review/create', 'ReviewController@store'); // create review
-        Route::get('getnews/review/{newsId}','ReviewController@getNewsReviews');// get review of a news
+        Route::post('review/create', 'ReviewController@store')->name('review.createReview'); // create review
+        Route::get('getews/review/{newsId}','ReviewController@getNewsReviews')->name('review.getReview');// get review of a news
         Route::get('searchNews','ReviewController@searchNews');// Search news by Title
         Route::put('review/update/send', 'ReviewController@send');// update review
-        Route::get('review/count/visible','ReviewController@countReviewBySent');// get  count of review with reactions where is_visible=1
+        Route::get('review/count/visible','ReviewController@countReviewBySent')->name('review.showReview');// get  count of review with reactions where is_visible=1
         });
     });
 });

@@ -2,7 +2,9 @@
 
 namespace Modules\Newsletter\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Modules\Newsletter\Exceptions\CustomValidationException;
 use Modules\Newsletter\Services\AuthorizationsService;
@@ -36,6 +38,15 @@ class NewsToNewsletterRequest extends FormRequest
         return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([1,2]);
     }
 
+    /**
+     * @param Validator $validator
+     */
+    protected function failedValidation(Validator $validator) {
+        throw new HttpResponseException(response()->json([
+            'status' => false,
+            'msg'    => implode(',', $validator->errors()->all())
+        ], 422));
+    }
     /**
      * @throws CustomValidationException
      */

@@ -72,7 +72,7 @@ class NewsService {
      * @throws Exception
      */
     public function createNews($param) {
-        $param= $this->uploadNewsMedia($param); //uploading media acoording to the media_type in $param
+        $param= $this->uploadNewsMedia($param); //uploading media according to the media_type in $param
         $news = News::create($param);
         if (!$news) {
             throw new CustomValidationException('news_create','news','message');
