@@ -17,7 +17,7 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
 
     Route::group(['prefix' => 'review'], function () {
         Route::post('review/create', 'ReviewController@store')->name('review.createReview'); // create review
-        Route::get('getews/review/{newsId}','ReviewController@getNewsReviews')->name('review.getReview');// get review of a news
+        Route::get('getnews/review/{newsId}','ReviewController@getNewsReviews')->name('review.getReview');// get review of a news
         Route::get('searchNews','ReviewController@searchNews');// Search news by Title
         Route::put('review/update/send', 'ReviewController@send');// update review
         Route::get('review/count/visible','ReviewController@countReviewBySent')->name('review.showReview');// get  count of review with reactions where is_visible=1

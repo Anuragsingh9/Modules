@@ -85,7 +85,12 @@ class NewsService {
      * @return News
      */
     public function getNewsByStatus($status){ // get all news of a given status
-        return  News::where('status',$status)->get();
+        if($status == 'validated'){
+
+            return  News::where('status','=','validated')
+                ->orWhere('status','=','sent')->get();
+        }
+            return  News::where('status',$status)->get();
     }
     
     /**

@@ -15,4 +15,9 @@ class NewsNewsletter extends Model
     protected $table = 'news_newsletter';
 
     protected $fillable = ['news_id','newsletter_id'];
+
+
+//    public function NewsNewsletterable() {
+//        return $this->morphTo();
+//    }
 }

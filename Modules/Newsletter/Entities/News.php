@@ -46,6 +46,16 @@ class News extends Model {
 
     public function newsletter() {
         return $this->belongsTo(NewsNewsletter::class);
+
+    }
+
+    /**
+     * This is creating relationship between news and news_newsletter
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function newsLetterSentOn() {
+        return $this->hasMany(NewsLetterScheduledTiming::class,'newsletter_id')
+            ->select('schedule_time');
     }
 
 

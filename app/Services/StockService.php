@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
-use App\Exceptions\CustomValidationException;
+//use App\Exceptions\CustomValidationException;
 use App\Http\Controllers\CoreController;
 use App\Setting;
 use Intervention\Image\Image;
+use Modules\Newsletter\Exceptions\CustomValidationException;
 use Modules\Newsletter\Http\Controllers\AdobeStockController;
 
 class StockService extends Service {
