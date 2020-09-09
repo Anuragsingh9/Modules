@@ -12,12 +12,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class NewsNewsletter extends Model
 {
-    protected $table = 'news_newsletter';
+    protected $table = 'news_newsletters';
 
     protected $fillable = ['news_id','newsletter_id'];
 
 
-//    public function NewsNewsletterable() {
-//        return $this->morphTo();
-//    }
+
 }

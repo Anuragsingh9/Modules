@@ -49,14 +49,14 @@ class News extends Model {
 
     }
 
-    /**
-     * This is creating relationship between news and news_newsletter
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
+
     public function newsLetterSentOn() {
-        return $this->hasMany(NewsLetterScheduledTiming::class,'newsletter_id')
-            ->select('schedule_time');
+        return $this->belongsToMany(Newsletter::class,'news_newsletters','news_id','newsletter_id')
+            ->with('scheduleTime')->whereHas('scheduleTime', function($q){
+            $q->where('schedule_time', '!=', NULL);
+        });
     }
+
 
 
 }

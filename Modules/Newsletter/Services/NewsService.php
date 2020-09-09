@@ -80,10 +80,7 @@ class NewsService {
         return $news;
     }
 
-    /**
-     * @param $status
-     * @return News
-     */
+
     public function getNewsByStatus($status){ // get all news of a given status
         if($status == 'validated'){
 

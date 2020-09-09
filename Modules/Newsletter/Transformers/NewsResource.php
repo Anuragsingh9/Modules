@@ -32,7 +32,8 @@ class NewsResource extends Resource {
             'review_id'               => $this->id,
             'media_url'               => $this->media_type == 2 ? $this->media_url : $core->getS3Parameter($path), // here 2 is for stock images
             'review_reaction'         => $this->reviewsCountByvisible,
-            'newsletter_sent_date'    =>$this->schedule_time == NULL ?"Pending":$this->newsLetterSentOn,
+            'newsletter'              => $this->newsLetterSentOn,
+
         ];
     }
 }
