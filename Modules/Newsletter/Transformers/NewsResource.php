@@ -19,6 +19,7 @@ class NewsResource extends Resource {
      * @return array
      */
     public function toArray($request) {
+
         $core =$this->core=NewsService::getInstance()->getCore();
         $path                     = $this->media_url;
         return [
@@ -31,9 +32,7 @@ class NewsResource extends Resource {
             'media_thumbnail'         => $this->media_thumbnail,
             'review_id'               => $this->id,
             'media_url'               => $this->media_type == 2 ? $this->media_url : $core->getS3Parameter($path), // here 2 is for stock images
-            'review_reaction'         => $this->reviewsCountByvisible,
-            'newsletter'              => $this->newsLetterSentOn,
-
+             $this->mergeWhen($this->status == 'validated', ['schedule_on' => $this->newsLetterSentOn->first() ? $this->newsLetterSentOn->first()->st_time : null]),
         ];
     }
 }

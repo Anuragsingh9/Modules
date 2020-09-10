@@ -73,7 +73,7 @@ class NewsController extends Controller {
                     throw new CustomAuthorizationException('Unauthorized Action');
                 }
                     $news = $this->newsService->getNewsByStatus($request->status);
-                    return NewsResource::collection($news)->additional(['status' => TRUE]);
+                return NewsResource::collection($news)->additional(['status' => TRUE]);
             } catch (CustomAuthorizationException $exception) {
                 return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
             }
