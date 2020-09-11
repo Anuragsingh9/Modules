@@ -4,6 +4,7 @@ namespace Modules\Newsletter\Services;
 use App\Services\StockService;
 use App\Workshop;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Modules\Newsletter\Entities\ModelMeta;
 use Modules\Newsletter\Entities\News;
 use Exception;
 use Modules\Newsletter\Entities\NewsNewsletter;
@@ -11,6 +12,7 @@ use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
 use Workflow;
 use Illuminate\Support\Facades\Config;
+use Carbon\Carbon;
 /**
  * This class is performing all the actions of News
  * This class is being called from NewsController
@@ -160,11 +162,29 @@ class NewsService {
      * @return News
      */
     public function applyTransitions($newsId, $transitionName) {
-        $news = News::findOrFail($newsId);
-        $workflow = Workflow::get($news,'news_status');
-        $workflow->apply($news, $transitionName); // applying transition
-        $news->save();
-        return $news;
+        if($transitionName == 'validate'){
+            $this->addValidationDateToMeta($newsId);
+        }
+            $news = News::findOrFail($newsId);
+            $workflow = Workflow::get($news,'news_status');
+            $workflow->apply($news, $transitionName); // applying transition
+            $news->save();
+            return $news;
+    }
+
+    /**
+     * @param $newsId
+     */
+    public function addValidationDateToMeta($newsId){
+            $Exists = ModelMeta::with('modelable')->where('modelable_id',$newsId)->first();
+        if(!$Exists){
+                $param = [
+                    'modelable_id' => $newsId,
+                    'modelable_type' => News::class,
+                    'fields'    =>json_encode(['validated_on' =>Carbon::now()]),
+                ];
+                ModelMeta::create($param);
+            }
     }
 
     /**
