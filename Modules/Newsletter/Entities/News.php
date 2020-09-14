@@ -64,7 +64,8 @@ class News extends Model {
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function validatedOn(){
-        return $this->morphMany(ModelMeta::class,'modelable');
+        return $this->morphMany(ModelMeta::class,'modelable')
+           ;
     }
     
 }

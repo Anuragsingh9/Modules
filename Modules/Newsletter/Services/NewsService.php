@@ -162,6 +162,7 @@ class NewsService {
      * @return News
      */
     public function applyTransitions($newsId, $transitionName) {
+
         if($transitionName == 'validate'){
             $this->addValidationDateToMeta($newsId);
         }
@@ -176,15 +177,21 @@ class NewsService {
      * @param $newsId
      */
     public function addValidationDateToMeta($newsId){
-            $Exists = ModelMeta::with('modelable')->where('modelable_id',$newsId)->first();
-        if(!$Exists){
-                $param = [
-                    'modelable_id' => $newsId,
-                    'modelable_type' => News::class,
-                    'fields'    =>json_encode(['validated_on' =>Carbon::now()]),
-                ];
-                ModelMeta::create($param);
+        $news = News::find($newsId);
+        $modelMeta = $news->validatedOn()->first();
+        if($modelMeta == NULL){
+            $news = News::find($newsId);
+            $modelMeta = [
+                'fields'    => ['validated_on' =>Carbon::now()],
+            ];
+             $news->validatedOn()->create($modelMeta);
             }
+        else{
+            $previousData = $modelMeta->fields;
+            $previousData['validated_on'] = Carbon::now();
+            $modelMeta->fields = $previousData;
+            $modelMeta->save();
+        }
     }
 
     /**
