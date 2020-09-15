@@ -34,12 +34,8 @@ class NewsResource extends Resource {
             'media_thumbnail'         => $this->media_thumbnail,
             'review_id'               => $this->id,
             'media_url'               => $this->media_type == 2 ? $this->media_url : $core->getS3Parameter($path), // here 2 is for stock images
-             $this->mergeWhen($this->status == 'validated', ['schedule_on' => $this->newsLetterSentOn->first() ? $this->newsLetterSentOn->first()->st_time : "Pending"]),
-//             $this->mergeWhen($this->status == 'validated', ['validated_on' => $this->validatedOn->first() ? $this->validatedOn->first()->fields['validated_on']['date'] : "Pending"]),
-//             $date = $this->validatedOn->first()->fields['validated_on']['date'],
-//            $dates ='validated_on'=>Carbon::parse($this->validatedOn->first()->fields['validated_on']['date'])->format('Y-m-d'),
-//            'validated_on' => $dates,
-            $this->mergeWhen($this->status == 'validated', ['validated_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['validated_on']['date'])->format('Y-m-d') : "Pending"]),
+             $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['schedule_on' => $this->newsLetterSentOn->first() ? $this->newsLetterSentOn->first()->st_time : NULL]),
+             $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['validated_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['validated_on']['date'])->format('Y-m-d') : NULL]),
 
 
         ];

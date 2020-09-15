@@ -161,26 +161,26 @@ class NewsService {
      * @param string $transitionName
      * @return News
      */
+
     public function applyTransitions($newsId, $transitionName) {
-
+        $news = News::find($newsId);
         if($transitionName == 'validate'){
-            $this->addValidationDateToMeta($newsId);
+            $this->addValidationDateToMeta($news);
         }
-            $news = News::findOrFail($newsId);
-            $workflow = Workflow::get($news,'news_status');
-            $workflow->apply($news, $transitionName); // applying transition
-            $news->save();
-            return $news;
+//            $news = News::findOrFail($newsId);
+        $workflow = Workflow::get($news,'news_status');
+        $workflow->apply($news, $transitionName); // applying transition
+        $news->save();
+        return $news;
     }
-
     /**
      * @param $newsId
      */
-    public function addValidationDateToMeta($newsId){
-        $news = News::find($newsId);
+    public function addValidationDateToMeta($news){
+//        $news = News::find($newsId);
         $modelMeta = $news->validatedOn()->first();
         if($modelMeta == NULL){
-            $news = News::find($newsId);
+//            $news = News::find($newsId);
             $modelMeta = [
                 'fields'    => ['validated_on' =>Carbon::now()],
             ];
