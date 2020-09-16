@@ -7,12 +7,16 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Modules\Newsletter\Entities\ModelMeta;
 use Modules\Newsletter\Entities\News;
 use Exception;
+use Modules\Newsletter\Entities\Newsletter;
 use Modules\Newsletter\Entities\NewsNewsletter;
+use Modules\Newsletter\Entities\ScheduleTime;
 use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
 use Workflow;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
+use function foo\func;
+
 /**
  * This class is performing all the actions of News
  * This class is being called from NewsController
@@ -86,7 +90,7 @@ class NewsService {
     public function getNewsByStatus($status){ // get all news of a given status
         if($status == 'validated'){
 
-            return  News::with('newsLetterSentOn')->where('status','=','validated')
+            return  News::with('newsLetterSentOn','reviewsCountByvisible')->where('status','=','validated')
                 ->orWhere('status','=','sent')->get();
         }else{
             return  News::where('status',$status)->get();
@@ -200,12 +204,35 @@ class NewsService {
      * @throws CustomValidationException
      */
     public function newsToNewsLetter($param){
+        $past = News::with('newsLetterSentOn')->first();
+//        $past = Newsletter::with(['scheduleTime'=>function($q){
+//            $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
+//        }])->get();
+//        $past = News::with(['scheduleTime'=>function($q){
+//            $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
+//        }])->get();
+        dd($past);
         $find = NewsNewsletter::where(function ($q) use ($param){
             $q->where('news_id',$param['news_id']);
             $q->where('newsletter_id',$param['newsletter_id']);
         })->first();
         if(!$find){ // if news_id and newsletter_id is not found then we can create new news To newsletter relation
-            return NewsNewsletter::create($param);
+            $past = News::with('newsLetterSentOn')
+//                ->where(function ($q){
+////            dd("ok");
+////                $q->where('newsletter_id','=',$param['newsletter_id']);
+//                $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
+//            })
+                ->first();
+                        dd($past);
+
+            if(count($past->newsLetterSentOn)== 0){
+//                dd("create");
+                return NewsNewsletter::create($param);
+            }else{
+                dd("dont create");
+            }
+
         }
             throw new CustomValidationException('newsletter','news','message');
     }

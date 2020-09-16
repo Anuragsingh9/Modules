@@ -36,7 +36,7 @@ class NewsResource extends Resource {
             'media_url'               => $this->media_type == 2 ? $this->media_url : $core->getS3Parameter($path), // here 2 is for stock images
              $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['schedule_on' => $this->newsLetterSentOn->first() ? $this->newsLetterSentOn->first()->st_time : NULL]),
              $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['validated_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['validated_on']['date'])->format('Y-m-d') : NULL]),
-
+             'review_reactions'        =>$this->reviewsCountByvisible,
 
         ];
     }
