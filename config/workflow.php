@@ -46,7 +46,7 @@ return [
         'transitions' => [
             'to_editorial' => ['from' => 'pre_validated',
                 'to'   => 'editorial_committee'],
-            'reject'       => ['from' => 'rejected',
+            'reject'       => ['from' => 'editorial_committee',
                 'to'   => 'rejected'],
             'validate'     => ['from' => 'editorial_committee',
                 'to'   => 'validated'],

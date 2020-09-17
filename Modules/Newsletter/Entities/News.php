@@ -49,30 +49,32 @@ class News extends Model {
 
     }
 
+    public function newsLetterSentOn() {
+        return $this->belongsToMany(Newsletter::class,'news_newsletters','news_id','newsletter_id')
+            ->whereHas('scheduleTime',function($q){
+            $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
+        })->join('newsletter_schedule_timings', 'newsletter_schedule_timings.newsletter_id', '=', 'newsletters.id')
+            ->select(
+                'newsletter_schedule_timings.schedule_time as st_time','newsletters.*')
+            ->where('schedule_time', '!=',NULL)
+            ->orderBy('schedule_time', 'asc');
+    }
+
 //    public function newsLetterSentOn() {
 //        return $this->belongsToMany(Newsletter::class,'news_newsletters','news_id','newsletter_id')
-//            ->with(['scheduleTime'=>function($q){
-//            $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
-//        }])->join('newsletter_schedule_timings', 'newsletter_schedule_timings.newsletter_id', '=', 'newsletters.id')
-//            ->select(
-//                'newsletter_schedule_timings.schedule_time as st_time')
-//            ->where('schedule_time', '!=',NULL)
-//            ->orderBy('schedule_time', 'asc');
+//            ;
 //    }
 
-    public function newsLetterSentOn() {
-        return $this->belongsTo(Newsletter::class,'id','newsletter_id')
-            ->with(['scheduleTime'=>function($q){
-                $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
-            }]);
-
-    }
 
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function validatedOn(){
+        return $this->morphMany(ModelMeta::class,'modelable');
+    }
+
+    public function rejectedOn(){
         return $this->morphMany(ModelMeta::class,'modelable');
     }
     

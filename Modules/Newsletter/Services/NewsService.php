@@ -170,8 +170,9 @@ class NewsService {
         $news = News::find($newsId);
         if($transitionName == 'validate'){
             $this->addValidationDateToMeta($news);
+        }elseif($transitionName == 'reject'){
+            $this->addRejectedDateToMeta($news);
         }
-//            $news = News::findOrFail($newsId);
         $workflow = Workflow::get($news,'news_status');
         $workflow->apply($news, $transitionName); // applying transition
         $news->save();
@@ -181,18 +182,32 @@ class NewsService {
      * @param $newsId
      */
     public function addValidationDateToMeta($news){
-//        $news = News::find($newsId);
         $modelMeta = $news->validatedOn()->first();
         if($modelMeta == NULL){
-//            $news = News::find($newsId);
             $modelMeta = [
                 'fields'    => ['validated_on' =>Carbon::now()],
             ];
              $news->validatedOn()->create($modelMeta);
-            }
+        }
         else{
             $previousData = $modelMeta->fields;
             $previousData['validated_on'] = Carbon::now();
+            $modelMeta->fields = $previousData;
+            $modelMeta->save();
+        }
+    }
+
+    public function addRejectedDateToMeta($news){
+        $modelMeta = $news->rejectedOn()->first();
+        if($modelMeta == NULL){
+            $modelMeta = [
+                'fields'    => ['rejected_on' =>Carbon::now()],
+            ];
+             $news->rejectedOn()->create($modelMeta);
+        }
+        else{
+            $previousData = $modelMeta->fields;
+            $previousData['rejected_on'] = Carbon::now();
             $modelMeta->fields = $previousData;
             $modelMeta->save();
         }
@@ -204,37 +219,11 @@ class NewsService {
      * @throws CustomValidationException
      */
     public function newsToNewsLetter($param){
-        $past = News::with('newsLetterSentOn')->first();
-//        $past = Newsletter::with(['scheduleTime'=>function($q){
-//            $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
-//        }])->get();
-//        $past = News::with(['scheduleTime'=>function($q){
-//            $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
-//        }])->get();
-        dd($past);
-        $find = NewsNewsletter::where(function ($q) use ($param){
-            $q->where('news_id',$param['news_id']);
-            $q->where('newsletter_id',$param['newsletter_id']);
-        })->first();
-        if(!$find){ // if news_id and newsletter_id is not found then we can create new news To newsletter relation
-            $past = News::with('newsLetterSentOn')
-//                ->where(function ($q){
-////            dd("ok");
-////                $q->where('newsletter_id','=',$param['newsletter_id']);
-//                $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
-//            })
-                ->first();
-                        dd($past);
-
-            if(count($past->newsLetterSentOn)== 0){
-//                dd("create");
+           $pastNewsletter = News::with('newsLetterSentOn')->where('id',$param['news_id'])->first();
+            if(count($pastNewsletter->newsLetterSentOn)== 0){
                 return NewsNewsletter::create($param);
-            }else{
-                dd("dont create");
             }
-
-        }
-            throw new CustomValidationException('newsletter','news','message');
+                throw new CustomValidationException('newsletter_sent','news','message');
     }
 
     /**
