@@ -123,7 +123,7 @@ class NewsController extends Controller {
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
             DB::connection()->rollback();
-            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getTrace()], 200);
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
 

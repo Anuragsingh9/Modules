@@ -60,12 +60,6 @@ class News extends Model {
             ->orderBy('schedule_time', 'asc');
     }
 
-//    public function newsLetterSentOn() {
-//        return $this->belongsToMany(Newsletter::class,'news_newsletters','news_id','newsletter_id')
-//            ;
-//    }
-
-
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany

@@ -22,7 +22,4 @@ class ModelMeta extends Model
         return $this->morphTo();
     }
 
-//    public function setValidatedOnAttribute( $value ) {
-//        $this->attributes['validated_on'] = (new Carbon($value))->format('Y-m-d');
-//    }
 }

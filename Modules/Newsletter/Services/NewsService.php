@@ -90,9 +90,13 @@ class NewsService {
     public function getNewsByStatus($status){ // get all news of a given status
         if($status == 'validated'){
 
-            return  News::with('newsLetterSentOn','reviewsCountByvisible')->where('status','=','validated')
+            return  News::with('newsLetterSentOn','reviewsCountByvisible','validatedOn')->where('status','=','validated')
                 ->orWhere('status','=','sent')->get();
-        }else{
+        }
+        elseif ($status == 'rejected'){
+            return News::with('rejectedOn')->where('status','=','rejected')->get();
+        }
+        else{
             return  News::where('status',$status)->get();
         }
     }
@@ -178,8 +182,9 @@ class NewsService {
         $news->save();
         return $news;
     }
+
     /**
-     * @param $newsId
+     * @param $news
      */
     public function addValidationDateToMeta($news){
         $modelMeta = $news->validatedOn()->first();
@@ -197,6 +202,9 @@ class NewsService {
         }
     }
 
+    /**
+     * @param $news
+     */
     public function addRejectedDateToMeta($news){
         $modelMeta = $news->rejectedOn()->first();
         if($modelMeta == NULL){
