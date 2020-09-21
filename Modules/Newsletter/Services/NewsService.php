@@ -206,12 +206,12 @@ class NewsService {
      * @param $news
      */
     public function addRejectedDateToMeta($news){
-        $modelMeta = $news->rejectedOn()->first();
+        $modelMeta = $news->validatedOn()->first();
         if($modelMeta == NULL){
             $modelMeta = [
                 'fields'    => ['rejected_on' =>Carbon::now()],
             ];
-             $news->rejectedOn()->create($modelMeta);
+             $news->validatedOn()->create($modelMeta);
         }
         else{
             $previousData = $modelMeta->fields;

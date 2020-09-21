@@ -34,7 +34,7 @@ class NewsResource extends Resource {
                 'media_url'               => $this->media_type == 2 ? $this->media_url : $core->getS3Parameter($path), // here 2 is for stock images
                 'review_reactions'        => $this->reviewsCountByvisible,
                 in_array($this->status, ['validated', 'sent']) ?  $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['validated_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['validated_on']['date'])->format('Y-m-d') : NULL]):
-                $this->mergeWhen(in_array($this->status, ['rejected']), ['rejected_on' => $this->rejectedOn->first() ? Carbon::parse($this->rejectedOn->first()->fields['rejected_on']['date'])->format('Y-m-d') : NULL]),
+                $this->mergeWhen(in_array($this->status, ['rejected']), ['rejected_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['rejected_on']['date'])->format('Y-m-d') : NULL]),
                 $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['schedule_on' => $this->newsLetterSentOn->first() ? $this->newsLetterSentOn->first()->st_time : NULL]),
 //            in_array($this->status, ['rejected']) ?  $this->mergeWhen(in_array($this->status, ['rejected']), ['rejected_on' => $this->rejectedOn->first() ? Carbon::parse($this->rejectedOn->first()->fields['rejected_on']['date'])->format('Y-m-d') : NULL]):NULL,
 

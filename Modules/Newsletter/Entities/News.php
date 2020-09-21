@@ -68,8 +68,9 @@ class News extends Model {
         return $this->morphMany(ModelMeta::class,'modelable');
     }
 
-    public function rejectedOn(){
-        return $this->morphMany(ModelMeta::class,'modelable');
-    }
+
+//    public function rejectedOn(){
+//        return $this->morphMany(ModelMeta::class,'modelable');
+//    }
     
 }

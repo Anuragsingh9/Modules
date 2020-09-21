@@ -139,6 +139,7 @@ class NewsController extends Controller {
             }
             $isAdmin=AuthorizationsService::getInstance();
         if ($isAdmin->isUserSuperAdmin() == 1) { // if user is super admin then all state of news
+
             $status = ['pre_validated', 'rejected', 'archived', 'validated', 'editorial_committee', 'sent'];
         }elseif ($workshop = Workshop::with(['meta' => function ($q) {
             $q->where('user_id', Auth::user()->id);
@@ -155,8 +156,12 @@ class NewsController extends Controller {
                 }
             }
         }
-        $status=News::select('status', DB::raw('count(*) as total'))
-                ->groupBy('status')->whereIn('status',$status)->get();
+
+            $status =  News::select(DB::raw("(case when status='sent' then 'validated'  else status end) as status, count(*) as total"))
+                ->groupBy(DB::raw("(case when status='sent' then 'validated'  else status end)"))->get();
+//        $st =$status[4] + $status[5];
+//        dd($st);
+//        dd(json_decode($status,TRUE));
             return response()->json(['status' => TRUE, 'data' => $status], 200);
         } catch (CustomAuthorizationException $exception) {
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
