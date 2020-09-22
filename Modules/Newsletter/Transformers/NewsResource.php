@@ -14,6 +14,12 @@ use Modules\Newsletter\Services\NewsService;
  */
 class NewsResource extends Resource {
 
+    public function dates(){
+        if( in_array($this->status, ['validated', 'sent'])){
+           return $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['validated_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['validated_on']['date'])->format('Y-m-d') : NULL]);
+        }
+        return $this->mergeWhen(in_array($this->status, ['rejected']), ['rejected_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['rejected_on']['date'])->format('Y-m-d') : NULL]);
+    }
     /**
      * @param Request $request
      * @return array
@@ -33,18 +39,9 @@ class NewsResource extends Resource {
                 'review_id'               => $this->id,
                 'media_url'               => $this->media_type == 2 ? $this->media_url : $core->getS3Parameter($path), // here 2 is for stock images
                 'review_reactions'        => $this->reviewsCountByvisible,
-                in_array($this->status, ['validated', 'sent']) ?  $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['validated_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['validated_on']['date'])->format('Y-m-d') : NULL]):
-                $this->mergeWhen(in_array($this->status, ['rejected']), ['rejected_on' => $this->validatedOn->first() ? Carbon::parse($this->validatedOn->first()->fields['rejected_on']['date'])->format('Y-m-d') : NULL]),
+                $this->dates(),
                 $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['schedule_on' => $this->newsLetterSentOn->first() ? $this->newsLetterSentOn->first()->st_time : NULL]),
-//            in_array($this->status, ['rejected']) ?  $this->mergeWhen(in_array($this->status, ['rejected']), ['rejected_on' => $this->rejectedOn->first() ? Carbon::parse($this->rejectedOn->first()->fields['rejected_on']['date'])->format('Y-m-d') : NULL]):NULL,
-
-
-
 
         ];
     }
 }
-
-//            'rejected_on' => RejectedResource::collection($this->whenLoaded('rejectedOn')),
-//                'validated_on'=> $this->status == ['validated', 'sent'] ? ValidatedResource::collection($this->whenLoaded('validatedOn')):NULL,
-//            $this->status== ['validated', 'sent'] ? $this->mergeWhen($this->status == 'rejected',['rejected_on'=> Carbon::parse($this->rejectedOn->first()->fields['rejected_on']['date'])->format('Y-m-d') ]): NULL,

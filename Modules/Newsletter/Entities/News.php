@@ -44,11 +44,17 @@ class News extends Model {
             ->groupBy('reviewable_id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function newsletter() {
         return $this->belongsTo(NewsNewsletter::class);
 
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function newsLetterSentOn() {
         return $this->belongsToMany(Newsletter::class,'news_newsletters','news_id','newsletter_id')
             ->whereHas('scheduleTime',function($q){
@@ -68,9 +74,4 @@ class News extends Model {
         return $this->morphMany(ModelMeta::class,'modelable');
     }
 
-
-//    public function rejectedOn(){
-//        return $this->morphMany(ModelMeta::class,'modelable');
-//    }
-    
 }

@@ -2,7 +2,6 @@
 
 namespace Modules\Newsletter\Entities;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class ModelMeta extends Model
@@ -10,7 +9,6 @@ class ModelMeta extends Model
     protected $casts = [
         'fields' => 'array',
     ];
-//    protected $dates = ['validated_on'];
     protected $fillable = [
         'fields','modelable_id','modelable_type',
     ];

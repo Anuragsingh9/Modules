@@ -156,12 +156,9 @@ class NewsController extends Controller {
                 }
             }
         }
-
             $status =  News::select(DB::raw("(case when status='sent' then 'validated'  else status end) as status, count(*) as total"))
-                ->groupBy(DB::raw("(case when status='sent' then 'validated'  else status end)"))->get();
-//        $st =$status[4] + $status[5];
-//        dd($st);
-//        dd(json_decode($status,TRUE));
+                ->groupBy(DB::raw("(case when status='sent' then 'validated'  else status end)"))
+                ->whereIn('status',$status)->get();
             return response()->json(['status' => TRUE, 'data' => $status], 200);
         } catch (CustomAuthorizationException $exception) {
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);

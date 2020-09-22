@@ -16,6 +16,4 @@ class NewsNewsletter extends Model
 
     protected $fillable = ['news_id','newsletter_id'];
 
-
-
 }

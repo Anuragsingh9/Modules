@@ -3,19 +3,13 @@
 namespace Modules\Newsletter\Services;
 use App\Services\StockService;
 use App\Workshop;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Modules\Newsletter\Entities\ModelMeta;
 use Modules\Newsletter\Entities\News;
 use Exception;
-use Modules\Newsletter\Entities\Newsletter;
 use Modules\Newsletter\Entities\NewsNewsletter;
-use Modules\Newsletter\Entities\ScheduleTime;
-use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
 use Workflow;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
-use function foo\func;
 
 /**
  * This class is performing all the actions of News
@@ -89,12 +83,13 @@ class NewsService {
 
     public function getNewsByStatus($status){ // get all news of a given status
         if($status == 'validated'){
+            
 
             return  News::with('newsLetterSentOn','reviewsCountByvisible','validatedOn')->where('status','=','validated')
                 ->orWhere('status','=','sent')->get();
         }
         elseif ($status == 'rejected'){
-            return News::with('rejectedOn')->where('status','=','rejected')->get();
+            return News::with('validatedOn')->where('status','=','rejected')->get();
         }
         else{
             return  News::where('status',$status)->get();
@@ -115,9 +110,6 @@ class NewsService {
         }
         return  News::find($id);
     }
-
-
-
 
     /**
      * @param $param

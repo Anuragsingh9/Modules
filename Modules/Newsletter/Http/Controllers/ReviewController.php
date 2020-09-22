@@ -3,7 +3,6 @@
 namespace Modules\Newsletter\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +16,7 @@ use Modules\Newsletter\Services\ReviewService;
 use Modules\Newsletter\Transformers\NewsResource;
 use Modules\Newsletter\Transformers\ReviewByVisibleResource;
 use Modules\Newsletter\Transformers\ReviewResource;
+const  MASSAGE = 'Unauthorized Action';
 /**
  * This class have all the logics for getting reviews of a news
  * Class ReviewController
@@ -66,7 +66,7 @@ class ReviewController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Unauthorized Action');
+                throw new CustomAuthorizationException(MASSAGE);
             }
             $news = News::with('reviews')->find($newsId);
             if(!$news){
@@ -106,7 +106,7 @@ class ReviewController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Unauthorized Action');
+                throw new CustomAuthorizationException(MASSAGE);
             }
             $title=$request->key; // This is search keyword
             $result=News::with('reviewsCountByvisible')
@@ -125,7 +125,7 @@ class ReviewController extends Controller {
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
-                throw new CustomAuthorizationException('Unauthorized Action');
+                throw new CustomAuthorizationException(MASSAGE);
             }
             $result=News::with('reviewsCountByvisible')->get();
             return ReviewByVisibleResource::collection($result)->additional(['status' => TRUE]);

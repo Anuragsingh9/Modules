@@ -1,15 +1,10 @@
 <?php
 
 namespace Modules\Newsletter\Services;
-use App\Exceptions\Handler;
-use App\User;
 use App\Workshop;
-use http\Env\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Service;
 use Modules\Newsletter\Entities\News;
-use App\WorkshopMeta;
-use Exception;
 use Modules\Newsletter\Exceptions\CustomValidationException;
 
 /**

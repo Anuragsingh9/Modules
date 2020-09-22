@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Newsletter extends Model
 {
     protected $table = 'newsletters';
-//    protected $hidden = ['pivot'];
-
     protected $fillable = [];
 
     public function newsSentOn() {
