@@ -23,7 +23,7 @@ class WorkflowTransitionRequest extends FormRequest {
 
         return [
             'news_id'         => ['required',
-                Rule::exists('news_info', 'id')
+                Rule::exists('tenant.news_info', 'id')
                     ->whereNull('deleted_at')],
             'transition_name' => ['required'],
         ];

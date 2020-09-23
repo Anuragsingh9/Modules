@@ -20,7 +20,7 @@ class NewsDeleteRequest extends FormRequest
         return [
             'news_id' =>[
                 'required',
-                 Rule::exists('news_info','id')->where(function ($query) {
+                 Rule::exists('tenant.news_info','id')->where(function ($query) {
                     $query->where('status','=','rejected')->whereNull('deleted_at');
                 })
                 ]

@@ -39,7 +39,7 @@ class ReviewController extends Controller {
      */
     public function store(ReviewAddRequest $request) { //  store review
         try {
-            DB::connection()->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::connection('tenant')->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param =
                 [
                  'review_reaction' => $request->review_reaction,
@@ -50,7 +50,7 @@ class ReviewController extends Controller {
                  'reviewable_type' => News::class,
                 ];
             $review = $this->service->create($param);
-            DB::connection()->commit();
+            DB::connection('tenant')->commit();
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
             DB::connection()->rollback();
@@ -86,14 +86,14 @@ class ReviewController extends Controller {
      */
     public function send(ReviewSendRequest $request) { // sending review
         try {
-            DB::beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::connection('tenant')->beginTransaction();//to provide the tenant environment and transaction will only apply to model which extends tenant model
             $reviewable =  News::class;
             $param = ['is_visible' => 1];  // setting review  is_vissible=0 to is_vissible=1
             $review = $this->service->update($param, $request->news_id,$reviewable);
-            DB::commit();
+            DB::connection('tenant')->commit();
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
-            DB::rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }

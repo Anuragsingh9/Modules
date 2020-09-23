@@ -24,8 +24,8 @@ class ReviewSendRequest extends FormRequest {
         return [
             'news_id' => [
                 'required',
-                Rule::exists('news_info', 'id')->whereNull('deleted_at'),
-                Rule::exists('news_reviews', 'reviewable_id')->where(function ($q) {
+                Rule::exists('tenant.news_info', 'id')->whereNull('deleted_at'),
+                Rule::exists('tenant.news_reviews', 'reviewable_id')->where(function ($q) {
                     $q->where('reviewed_by', Auth::user()->id);
                     $q->where('reviewable_type', News::class);
                 })

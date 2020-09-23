@@ -19,9 +19,9 @@ class NewsToNewsletterRequest extends FormRequest
     public function rules()
     {
         return [
-            'newsletter_id'     =>['required',Rule::exists('newsletters','id')
+            'newsletter_id'     =>['required',Rule::exists('tenant.newsletters','id')
                                 ->whereNull('deleted_at')],
-            'news_id'           =>['required',Rule::exists('news_info','id')
+            'news_id'           =>['required',Rule::exists('tenant.news_info','id')
                 ->whereNull('deleted_at')->where(function ($q){
                     $q->where('status','!=','sent');
                 })]

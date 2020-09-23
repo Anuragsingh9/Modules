@@ -2,9 +2,9 @@
 
 namespace Modules\Newsletter\Entities;
 
-use Illuminate\Database\Eloquent\Model;
+use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
 
-class ScheduleTime extends Model
+class ScheduleTime extends TenancyModel
 {
     protected $table = 'newsletter_schedule_timings';
     protected $fillable = [];

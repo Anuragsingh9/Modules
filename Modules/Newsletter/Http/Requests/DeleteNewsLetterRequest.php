@@ -21,12 +21,12 @@ class DeleteNewsLetterRequest extends FormRequest
         return [
             'news_id' =>[
                 'required',
-                Rule::exists('news_newsletter','news_id')
+                Rule::exists('tenant.news_newsletter','news_id')
                     ->where('newsletter_id',$this->newsletter_id),
             ],
             'newsletter_id' =>[
                 'required',
-                Rule::exists('news_newsletter','newsletter_id'),
+                Rule::exists('tenant.news_newsletter','newsletter_id'),
             ]
         ];
     }
