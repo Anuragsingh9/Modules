@@ -4,7 +4,6 @@ namespace Modules\Newsletter\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
-
 class NewsletterServiceProvider extends ServiceProvider
 {
     /**
@@ -26,6 +25,8 @@ class NewsletterServiceProvider extends ServiceProvider
         $this->registerViews();
         $this->registerFactories();
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+
+        app()->make('router')->aliasMiddleware('newsmoderation', \Modules\Newsletter\Http\Middleware\NewsModeration::class);
     }
 
     /**
