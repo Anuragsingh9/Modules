@@ -41,7 +41,7 @@ class NewsController extends Controller {
      */
     public function store(NewsCreateRequest $request) { // create news
         try {
-            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'              => $request->title,
                 'header'             => $request->header,
@@ -53,10 +53,10 @@ class NewsController extends Controller {
                 'request_media_blob' => $request->media_blob,
             ];
             $news = $this->newsService->createNews($param);
-            DB::connection('tenant')->commit();
+            DB::commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
-            DB::connection('tenant')->rollback();
+            DB::rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }

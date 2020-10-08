@@ -112,21 +112,34 @@ class NewsService {
     }
 
     /**
+     * @param $filePath
+     * @param $file
+     * @param $visibility
+     * @return mixed
+     */
+    public function fileUploadToS3($filePath, $file, $visibility) {
+        // TODO
+        $domain = "Locahost";
+//        $domain = Locahost::getInstance()->getHostname()->fqdn;
+
+        return $this->getCore()->fileUploadToS3(
+            "$domain/$filePath",$file,$visibility);
+    }
+    /**
      * @param $param
      * @return array
      */
     public function uploadNewsMedia($param) { // upload media according to media_type
-        $cores=$this->core=NewsService::getInstance()->getCore();
         if(isset($param['request_media_type'])) {
             $path = config('newsletter.s3.news_image');
             $visibility = 'public';
             if ($param['request_media_type'] == Config::get('nl_const.news_media_video')) { // video uploading
                 $param ['media_url'] = $param['request_media_url'];
                 $param['media_type'] =Config::get('nl_const.news_media_video');
-                $param['media_thumbnail'] = $cores->fileUploadToS3($path,$param['request_media_blob'],$visibility);
+                $param['media_thumbnail'] = $this->fileUploadToS3($path,$param['request_media_blob'],$visibility);
             } elseif ($param['request_media_type'] == Config::get('nl_const.news_media_image')) { // image from system uploading
                 $param['media_type'] = Config::get('nl_const.news_media_image');
-                $param ['media_url'] = $cores->fileUploadToS3($path,$param['request_media_blob'],$visibility);
+                $param ['media_url'] = $this->fileUploadToS3($path,$param['request_media_blob'],$visibility);
                 $param['media_thumbnail'] = NUll;
             } else{ // media_type == 2 and adobe image uploading so we already have url,
                 $param['media_type'] = Config::get('nl_const.news_media_stock');
@@ -148,6 +161,7 @@ class NewsService {
     public function uploadStockImage($request){
         $cores=$this->getCore();
         $stockService=$this->getService();
+        $domain = 'localhost';
         $path = config('newsletter.s3.news_image');
         $visibility = 'public';
         $path=$stockService->uploadImage($request,$path,$visibility);

@@ -2,9 +2,11 @@
 
 namespace Modules\Newsletter\Entities;
 
-use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
+//use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
 
-class Newsletter extends TenancyModel
+use Illuminate\Database\Eloquent\Model;
+
+class Newsletter extends Model
 {
     protected $table = 'newsletters';
     protected $fillable = [];

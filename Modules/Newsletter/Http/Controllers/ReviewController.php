@@ -53,7 +53,7 @@ class ReviewController extends Controller {
             DB::connection('tenant')->commit();
             return (new ReviewResource($review))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
-            DB::connection()->rollback();
+            DB::connection('tenant')->rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
@@ -97,7 +97,6 @@ class ReviewController extends Controller {
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
-//connection('tenant')->
     /**
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection

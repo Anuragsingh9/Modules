@@ -2,10 +2,12 @@
 
 namespace Modules\Newsletter\Entities;
 
-use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
+//use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
 
 
-class ModelMeta extends TenancyModel
+use Illuminate\Database\Eloquent\Model;
+
+class ModelMeta extends Model
 {
     protected $casts = [
         'fields' => 'array',
