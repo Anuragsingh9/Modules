@@ -23,17 +23,19 @@ class ReviewAddRequest extends FormRequest {
            'review_reaction' => 'required|in:0,1,2',
             'review_text'    =>'required_if:review_reaction,0,1',
            'news_id'         => ['required',
-               Rule::exists('tenant.news_info', 'id')->whereNull('deleted_at'),
-           ],
+               Rule::exists('news_info', 'id')
+                   ->whereNull('deleted_at')
+                   ->where(function ($q){
+                       $q->where('status','=','editorial_committee');
+                   })],
         ];
     }
-    
+
     /**
      *  Determine weather  the user belongs to workshop or not.
      * @return bool
      */
     public function authorize() {
-
         return AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
     }
 
