@@ -14,6 +14,8 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         Route::post('news/stock/upload','NewsController@stockImageUpload');// stock image upload
         Route::post('news/newsletter','NewsController@newsToNewsLetter')->name('news.createNewsletter');// create relation between news to newsletter
         Route::post('delete/newsletter','NewsController@deleteNewsLetter');// delete newsletter
+        Route::get('news/reservoir','NewsController@reservoirNews');
+        Route::get('single/news','NewsController@show');
 
     Route::group(['prefix' => 'review'], function () {
         Route::post('review/create', 'ReviewController@store')->name('review.createReview'); // create review

@@ -95,6 +95,22 @@ class NewsService {
             return  News::where('status',$status)->get();
         }
     }
+
+    /**
+     * @param $newsId
+     * @return mixed
+     * return a single news
+     * @throws CustomValidationException
+     */
+    public function getNewsById($newsId){
+       $news = News::where('id',$newsId)->first();
+       if (!$news){
+           throw new CustomValidationException('exists','news');
+       }
+       else {
+           return $news;
+       }
+    }
     
     /**
      * @param $id
@@ -119,7 +135,7 @@ class NewsService {
      */
     public function fileUploadToS3($filePath, $file, $visibility) {
         // TODO
-        $domain = "Locahost";
+        $domain = "Localhost";
 //        $domain = Locahost::getInstance()->getHostname()->fqdn;
 
         return $this->getCore()->fileUploadToS3(
@@ -240,6 +256,15 @@ class NewsService {
                 return NewsNewsletter::create($param);
             }
                 throw new CustomValidationException('newsletter_sent','news','message');
+    }
+
+    /**
+     * @return mixed
+     * return all validated news except those attached with Newsletter
+     */
+    public function getReservoirNews(){
+            $newsAttached = NewsNewsletter::pluck('news_id')->all();
+            return News::whereNotIn('id',$newsAttached)->where('status','=','validated')->get();
     }
 
     /**

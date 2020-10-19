@@ -9,6 +9,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Newsletter\Entities\News;
+use Modules\Newsletter\Entities\NewsNewsletter;
 use Modules\Newsletter\Exceptions\CustomAuthorizationException;
 use Modules\Newsletter\Exceptions\CustomValidationException;
 use Modules\Newsletter\Http\Requests\DeleteNewsLetterRequest;
@@ -76,6 +77,19 @@ class NewsController extends Controller {
                 return NewsResource::collection($news)->additional(['status' => TRUE]);
             } catch (CustomAuthorizationException $exception) {
                 return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
+            }
+        }
+
+        public function show(Request $request){
+            try {
+                DB::connection()->beginTransaction();
+                $newsId = $request->news_id;
+                $news = $this->newsService->getNewsById($newsId);
+                return (new NewsResource($news))->additional(['status' => TRUE]);
+                DB::connection()->commit();
+            }catch (CustomValidationException $exception) {
+                DB::connection()->rollback();
+                return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
             }
         }
 
@@ -216,6 +230,23 @@ class NewsController extends Controller {
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
+
+    /**
+     * @return JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function reservoirNews(){
+        try {
+            $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
+            if (!$auth) {
+                throw new CustomAuthorizationException('Unauthorized Action');
+            }
+            $reservoirNews=$this->newsService->getReservoirNews();
+            return NewsResource::collection($reservoirNews)->additional(['status' => TRUE]);
+        } catch (CustomAuthorizationException $exception) {
+            return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
+        }
+    }
+
 
     /**
      * @param DeleteNewsLetterRequest $request
