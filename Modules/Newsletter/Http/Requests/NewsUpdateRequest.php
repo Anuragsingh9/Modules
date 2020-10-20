@@ -25,7 +25,10 @@ class NewsUpdateRequest extends FormRequest {
         return [
             'news_id'     => [
                 'required',
-                Rule::exists('tenant.news_info', 'id')->whereNull('deleted_at')
+                Rule::exists('news_info', 'id')->whereNull('deleted_at')
+                    ->where(function ($q){
+                    $q->where('status','=',['pre_validated','editorial_committee']);
+                })
             ],
             'title'       => $requiredStringMax('title'),
             'header'      => $requiredStringMax('header'),

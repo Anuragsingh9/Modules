@@ -100,7 +100,7 @@ class NewsController extends Controller {
      */
     public function update(NewsUpdateRequest $request) { // update  news
         try {
-            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::connection()->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $param = [
                 'title'       => $request->title,
                 'header'      => $request->header,
@@ -117,10 +117,10 @@ class NewsController extends Controller {
                 $param = array_merge($param, $params); // if update has media then merging media $params with $param
             }
             $news = $this->newsService->update($request->news_id, $param);
-            DB::connection('tenant')->commit();
+            DB::connection()->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (CustomValidationException $exception) {
-            DB::connection('tenant')->rollback();
+            DB::connection()->rollback();
             return response()->json(['status' => FALSE,'error' => $exception->getMessage()],422);
         }
     }
@@ -234,13 +234,13 @@ class NewsController extends Controller {
     /**
      * @return JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function reservoirNews(){
+    public function reservoirNews($newsletterId){
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
                 throw new CustomAuthorizationException('Unauthorized Action');
             }
-            $reservoirNews=$this->newsService->getReservoirNews();
+            $reservoirNews=$this->newsService->getReservoirNews($newsletterId);
             return NewsResource::collection($reservoirNews)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);

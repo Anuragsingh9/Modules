@@ -3,6 +3,7 @@
 namespace Modules\Newsletter\Services;
 use App\Services\StockService;
 use App\Workshop;
+use Illuminate\Database\Query\Builder;
 use Modules\Newsletter\Entities\News;
 use Exception;
 use Modules\Newsletter\Entities\NewsNewsletter;
@@ -262,9 +263,14 @@ class NewsService {
      * @return mixed
      * return all validated news except those attached with Newsletter
      */
-    public function getReservoirNews(){
-            $newsAttached = NewsNewsletter::pluck('news_id')->all();
-            return News::whereNotIn('id',$newsAttached)->where('status','=','validated')->get();
+    public function getReservoirNews($newsletterId){
+       return  News::whereDoesntHave('newsletter', function($query) use ($newsletterId){
+            $query->where('newsletter_id',$newsletterId);
+        })->whereDoesntHave('letterSentOn')
+            ->where('status','=','validated')->get();
+
+//            $newsAttached = NewsNewsletter::pluck('news_id')->all();
+//            return News::whereNotIn('id',$newsAttached)->where('status','=','validated')->get();
     }
 
     /**

@@ -47,7 +47,7 @@ class News extends Model {
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function newsletter() {
-        return $this->belongsTo(NewsNewsletter::class);
+        return $this->hasMany(NewsNewsletter::class);
 
     }
 
@@ -65,6 +65,12 @@ class News extends Model {
             ->orderBy('schedule_time', 'asc');
     }
 
+    public function letterSentOn() {
+        return $this->belongsToMany(Newsletter::class,'news_newsletters','news_id','newsletter_id')
+            ->whereHas('scheduleTime',function($q){
+                $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
+            });
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
