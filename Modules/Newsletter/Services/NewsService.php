@@ -202,7 +202,9 @@ class NewsService {
         }elseif($transitionName == 'reject'){
             $this->addRejectedDateToMeta($news);
         }
+//        dd($news);
         $workflow = Workflow::get($news,'news_status');
+
         $workflow->apply($news, $transitionName); // applying transition
         $news->save();
         return $news;
@@ -264,15 +266,35 @@ class NewsService {
      * return all validated news except those attached with Newsletter
      */
     public function getReservoirNews($newsletterId){
-       return  News::whereDoesntHave('newsletter', function($query) use ($newsletterId){
+       $reservoirNews =  News::whereDoesntHave('newsletter', function($query) use ($newsletterId){
             $query->where('newsletter_id',$newsletterId);
         })->whereDoesntHave('letterSentOn')
             ->where('status','=','validated')->get();
+//        dd($reservoirNews->sort());
+
+
+        $all = $reservoirNews->toArray();
+//        dd($all);
+
+        $key = array_keys($all);
+        foreach ($key as $keys){
+            $id = $all[$keys]['id'];
+            $newsOrder = News::where('id',$id)->first();
+        $newsOrder->update(['order_by' => $keys]);
+        }
+        return $reservoirNews;
 
 //            $newsAttached = NewsNewsletter::pluck('news_id')->all();
 //            return News::whereNotIn('id',$newsAttached)->where('status','=','validated')->get();
     }
 
+    public function CustomSorting($old,$new){
+       return  [
+            News::where('order_by',$old)->update(['order_by' =>$new]),
+            News::where('order_by',$new)->update(['order_by' =>$old]),
+        ];
+
+    }
     /**
      * @param $id
      */
@@ -290,6 +312,8 @@ class NewsService {
         $news=NewsNewsletter::where('news_id',$newsId)->where('newsletter_id',$newsLetterID)->first();
         $news->delete();
     }
+
+
 
 }
 

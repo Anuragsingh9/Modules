@@ -54,6 +54,8 @@ return [
                 'to'   => 'archived'],
             'send'         => ['from' => 'validated',
                 'to'   => 'sent'],
+            'rollback'     => ['from' => 'rejected',
+                'to'   =>  'editorial_committee'],
         ],
     ]
 ];

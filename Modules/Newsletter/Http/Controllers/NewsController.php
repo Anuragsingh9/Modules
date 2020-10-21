@@ -131,12 +131,12 @@ class NewsController extends Controller {
      */
     public function applyTransition(WorkflowTransitionRequest $request) { // Transition of news
         try {
-            DB::connection('tenant')->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
+            DB::connection()->beginTransaction();// to provide the tenant environment and transaction will only apply to model which extends tenant model
             $news = $this->newsService->applyTransitions($request->news_id, $request->transition_name);
-            DB::connection('tenant')->commit();
+            DB::connection()->commit();
             return (new NewsResource($news))->additional(['status' => TRUE]);
         } catch (\Exception $e) {
-            DB::connection('tenant')->rollback();
+            DB::connection()->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
@@ -247,6 +247,19 @@ class NewsController extends Controller {
         }
     }
 
+    public function ReservoirCustomSorting(Request $request){
+        try {
+            DB::connection()->beginTransaction();
+            $old = $request->old_Order;
+            $new = $request->new_Order;
+            $this->newsService->CustomSorting($old,$new);
+            DB::connection()->commit();
+            return response()->json(['status' => TRUE,'data' =>__('newsletter::message.deleted_news')], 200);
+        } catch (\Exception $e) {
+            DB::connection()->rollback();
+            return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
+        }
+    }
 
     /**
      * @param DeleteNewsLetterRequest $request
@@ -264,6 +277,8 @@ class NewsController extends Controller {
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
         }
     }
+
+
 
 }
 

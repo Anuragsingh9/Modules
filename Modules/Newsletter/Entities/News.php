@@ -4,6 +4,7 @@ namespace Modules\Newsletter\Entities;
 
 use Brexis\LaravelWorkflow\Traits\WorkflowTrait;
 //use Hyn\Tenancy\Abstracts\TenantModel as TenancyModel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +18,7 @@ class News extends Model {
     use WorkflowTrait;
     protected $table = 'news_info';
     protected $fillable = [
-        'title', 'header', 'description', 'status', 'created_by', 'media_url', 'media_thumbnail', 'media_type'
+        'title', 'header', 'description', 'status', 'created_by', 'media_url', 'media_thumbnail', 'media_type','order_by'
     ];
 
     /**
@@ -57,7 +58,7 @@ class News extends Model {
     public function newsLetterSentOn() {
         return $this->belongsToMany(Newsletter::class,'news_newsletters','news_id','newsletter_id')
             ->whereHas('scheduleTime',function($q){
-            $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
+            $q->where('schedule_time','<',Carbon::now()->toDateTimeString());
         })->join('newsletter_schedule_timings', 'newsletter_schedule_timings.newsletter_id', '=', 'newsletters.id')
             ->select(
                 'newsletter_schedule_timings.schedule_time as st_time','newsletters.*')
@@ -68,7 +69,7 @@ class News extends Model {
     public function letterSentOn() {
         return $this->belongsToMany(Newsletter::class,'news_newsletters','news_id','newsletter_id')
             ->whereHas('scheduleTime',function($q){
-                $q->where('schedule_time','<',date("Y-m-d h:i:s", time()));
+                $q->where('schedule_time','<',Carbon::now()->toDateTimeString());
             });
     }
 

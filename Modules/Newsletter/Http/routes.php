@@ -16,6 +16,7 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         Route::post('delete/newsletter','NewsController@deleteNewsLetter');// delete newsletter
         Route::get('news/reservoir/{newsletterId}','NewsController@reservoirNews');
         Route::get('single/news','NewsController@show');
+        Route::post('news/orderBy','NewsController@ReservoirCustomSorting');
 
     Route::group(['prefix' => 'review'], function () {
         Route::post('review/create', 'ReviewController@store')->name('review.createReview'); // create review
