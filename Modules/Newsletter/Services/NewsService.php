@@ -4,6 +4,7 @@ namespace Modules\Newsletter\Services;
 use App\Services\StockService;
 use App\Workshop;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Modules\Newsletter\Entities\News;
 use Exception;
 use Modules\Newsletter\Entities\NewsNewsletter;
@@ -269,31 +270,57 @@ class NewsService {
        $reservoirNews =  News::whereDoesntHave('newsletter', function($query) use ($newsletterId){
             $query->where('newsletter_id',$newsletterId);
         })->whereDoesntHave('letterSentOn')
-            ->where('status','=','validated')->get();
-//        dd($reservoirNews->sort());
-
-
-        $all = $reservoirNews->toArray();
-//        dd($all);
-
-        $key = array_keys($all);
-        foreach ($key as $keys){
-            $id = $all[$keys]['id'];
-            $newsOrder = News::where('id',$id)->first();
-        $newsOrder->update(['order_by' => $keys]);
-        }
+            ->where('status','=','validated')->orderBy('order_by')->get();
+//        $all = $reservoirNews->toArray();
+//        $key = array_keys($all);
+//        foreach ($key as $keys){
+//            $id = $all[$keys]['id'];
+//            $newsOrder = News::where('id',$id)->first();
+//        $newsOrder->update(['order_by' => $keys]);
+//        }
         return $reservoirNews;
-
-//            $newsAttached = NewsNewsletter::pluck('news_id')->all();
-//            return News::whereNotIn('id',$newsAttached)->where('status','=','validated')->get();
     }
 
-    public function CustomSorting($old,$new){
-       return  [
-            News::where('order_by',$old)->update(['order_by' =>$new]),
-            News::where('order_by',$new)->update(['order_by' =>$old]),
-        ];
+//    public function autoFillOrderByInReservoir($newsletterId){
+//        $reservoirNews =  News::whereDoesntHave('newsletter', function($query) use ($newsletterId){
+//            $query->where('newsletter_id',$newsletterId);
+//        })->whereDoesntHave('letterSentOn')
+//            ->where('status','=','validated')->get();
+//        $all = $reservoirNews->toArray();
+//        $key = array_keys($all);
+//        foreach ($key as $keys){
+//            $id = $all[$keys]['id'];
+//            $newsOrder = News::where('id',$id)->first();
+//            $newsOrder->update(['order_by' => $keys]);
+//        }
+//    }
 
+    public function customSorting($newsId,$new){
+
+        $news = News::find($newsId); // Whichever model you are updating
+
+        $newOrderBy = $new; // The new order_by value
+        $oldOrderBy = $news->order_by;
+
+        if($newOrderBy < $oldOrderBy ){
+            News::where('order_by', '>=', $newOrderBy)
+                ->where('order_by', '<', $oldOrderBy)
+                ->update([
+                    'order_by' => DB::raw('order_by + 1'),
+                ]);
+            $news->update([
+                'order_by' => $newOrderBy,
+            ]);
+        }elseif ($newOrderBy > $oldOrderBy){
+            News::where('order_by', '<=', $newOrderBy)
+                ->where('order_by', '>', $oldOrderBy)
+                ->update([
+                    'order_by' => DB::raw('order_by - 1'),
+                ]);
+            $news->update([
+                'order_by' => $newOrderBy,
+            ]);
+        }
     }
     /**
      * @param $id

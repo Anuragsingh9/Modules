@@ -14,7 +14,7 @@ class AddOrderToNewsInfoTable extends Migration
     public function up()
     {
         Schema::table('news_info', function (Blueprint $table) {
-            $table->integer('order_by');
+            $table->increments('order_by');
         });
     }
 

@@ -250,9 +250,9 @@ class NewsController extends Controller {
     public function ReservoirCustomSorting(Request $request){
         try {
             DB::connection()->beginTransaction();
-            $old = $request->old_Order;
+            $newsId = $request->news_id;
             $new = $request->new_Order;
-            $this->newsService->CustomSorting($old,$new);
+            $this->newsService->customSorting($newsId,$new);
             DB::connection()->commit();
             return response()->json(['status' => TRUE,'data' =>__('newsletter::message.deleted_news')], 200);
         } catch (\Exception $e) {
