@@ -295,32 +295,118 @@ class NewsService {
 //        }
 //    }
 
+
+    public function getLexoRank($prev = null, $next = null) {
+        // if prev null will assume in very first, if next null we'll assume at the end
+        // boundary testing care.
+        $prev = $prev == null ? config('kct_const.lexo_rank_min') : $prev;
+        $next = $next == null ? config('kct_const.lexo_rank_max') : $next;
+        // as between 'a' and 'b' we will need 'an' so for that we need to make string compare like
+        // between a0 and b0 so we get an
+        $strLen = $this->getGreaterStringLength($prev, $next) + 1;
+        // making prev and next to append the a in prev, z in next
+        // reason when we need to find between same length and next to each other like
+        // b and c so it will like finding between ba and cz ->
+        // no to care it will not make like ca cb cc.... cz so order will have prefix b -> bX will be result
+        // e.g. 2 -> between baaa and baab  then -> baaam
+        $prev = $this->addLexoStrPad($prev, $strLen, true);
+        $next = $this->addLexoStrPad($next, $strLen, false);
+        return $this->findRankBetween($prev, $next);
+    }
+    /*
+     * HELPER METHODS
+     */
+    /**
+     * This helper method returns the greatest string list among variable string parameters
+     *
+     * @param string ...$strings
+     * @return int
+     */
+    public function getGreaterStringLength(...$strings) {
+        $count = 0;
+        foreach ($strings as $string) {
+            $i = strlen($string);
+            if ($i > $count) {
+                $count = $i;
+            }
+        }
+        return $count;
+    }
+    /**
+     * adds the extra digit to string for finding between two consecutive character or lexo
+     *
+     * @param $string
+     * @param $strLen
+     * @param $min
+     * @return string
+     */
+    public function addLexoStrPad($string, $strLen, $min) {
+        $minMax = ($min ? 'min' : 'max');
+        return str_pad($string, $strLen, config("kct_const.lexo_rank_$minMax"));
+    }
+    /**
+     * actually finding rank between two equal length strings
+     *
+     * @param $prev
+     * @param $next
+     * @return string
+     */
+    public function findRankBetween($prev, $next) {
+        $len = strlen($prev);
+        $rank = '';
+        for ($i = 0; $i < $len; $i++) {
+            if ($prev[$i] == $next[$i]) {
+                $rank .= $prev[$i];
+            } else {
+                $mid = $this->findMiddleChar($prev[$i], $next[$i]);
+                $rank .= $mid;
+                if ($mid != $prev[$i]) {
+                    break;
+                }
+            }
+        }
+        return $rank;
+    }
+    public function findMiddleChar($i, $j) {
+        return chr((int)((ord($i) + ord($j)) / 2));
+    }
+
+
+
+
+
+
+
+
     public function customSorting($newsId,$new){
 
-        $news = News::find($newsId); // Whichever model you are updating
 
-        $newOrderBy = $new; // The new order_by value
-        $oldOrderBy = $news->order_by;
 
-        if($newOrderBy < $oldOrderBy ){
-            News::where('order_by', '>=', $newOrderBy)
-                ->where('order_by', '<', $oldOrderBy)
-                ->update([
-                    'order_by' => DB::raw('order_by + 1'),
-                ]);
-            $news->update([
-                'order_by' => $newOrderBy,
-            ]);
-        }elseif ($newOrderBy > $oldOrderBy){
-            News::where('order_by', '<=', $newOrderBy)
-                ->where('order_by', '>', $oldOrderBy)
-                ->update([
-                    'order_by' => DB::raw('order_by - 1'),
-                ]);
-            $news->update([
-                'order_by' => $newOrderBy,
-            ]);
-        }
+
+//        $news = News::find($newsId); // Whichever model you are updating
+//
+//        $newOrderBy = $new; // The new order_by value
+//        $oldOrderBy = $news->order_by;
+//
+//        if($newOrderBy < $oldOrderBy ){
+//            News::where('order_by', '>=', $newOrderBy)
+//                ->where('order_by', '<', $oldOrderBy)
+//                ->update([
+//                    'order_by' => DB::raw('order_by + 1'),
+//                ]);
+//            $news->update([
+//                'order_by' => $newOrderBy,
+//            ]);
+//        }elseif ($newOrderBy > $oldOrderBy){
+//            News::where('order_by', '<=', $newOrderBy)
+//                ->where('order_by', '>', $oldOrderBy)
+//                ->update([
+//                    'order_by' => DB::raw('order_by - 1'),
+//                ]);
+//            $news->update([
+//                'order_by' => $newOrderBy,
+//            ]);
+//        }
     }
     /**
      * @param $id
