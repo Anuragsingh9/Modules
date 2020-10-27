@@ -241,10 +241,8 @@ class NewsController extends Controller {
             if (!$auth) {
                 throw new CustomAuthorizationException('Unauthorized Action');
             }
-            $newsId = $request->news_id;
-            $new = $request->new_Order;
             $newsletterId = $request->newsletter_id;
-            $reservoirNews=$this->newsService->getReservoirNews($newsletterId,$newsId,$new);
+            $reservoirNews=$this->newsService->getReservoirNews($newsletterId);
             return NewsResource::collection($reservoirNews)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
@@ -257,9 +255,11 @@ class NewsController extends Controller {
             $newsId = $request->news_id;
             $newOrder = $request->new_Order;
             $newsletterId = $request->newsletter_id;
-            $this->newsService->customSorting($newsId,$newOrder,$newsletterId);
+            $reservoirNews = $this->newsService->customSorting($newsId,$newOrder,$newsletterId);
             DB::connection()->commit();
-            return response()->json(['status' => TRUE,'data' =>__('newsletter::message.deleted_news')], 200);
+            return NewsResource::collection($reservoirNews)->additional(['status' => TRUE]);
+
+//            return response()->json(['status' => TRUE,'data' =>__('newsletter::message.deleted_news')], 200);
         } catch (\Exception $e) {
             DB::connection()->rollback();
             return response()->json(['status' => FALSE, 'msg' => MASSAGE, 'error' => $e->getMessage()], 200);
