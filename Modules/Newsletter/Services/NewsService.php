@@ -67,6 +67,11 @@ class NewsService {
         return $workshop;
     }
 
+    public function addOrder(){
+        $pre ='aaacb';
+        $next = '';
+        return $this->getLexoRank($pre,$next);
+    }
 
     /**
      * @param $param
@@ -266,19 +271,130 @@ class NewsService {
      * @return mixed
      * return all validated news except those attached with Newsletter
      */
-    public function getReservoirNews($newsletterId){
+    public function getReservoirNews($newsletterId,$newsId,$newRank){
        $reservoirNews =  News::whereDoesntHave('newsletter', function($query) use ($newsletterId){
             $query->where('newsletter_id',$newsletterId);
         })->whereDoesntHave('letterSentOn')
-            ->where('status','=','validated')->orderBy('order_by')->get();
-//        $all = $reservoirNews->toArray();
-//        $key = array_keys($all);
-//        foreach ($key as $keys){
-//            $id = $all[$keys]['id'];
-//            $newsOrder = News::where('id',$id)->first();
-//        $newsOrder->update(['order_by' => $keys]);
+            ->where('status','=','validated')->orderBy('order_by','asc')->get();
+
+
+//       $newsRank = $this->getPositionOfNews($newsId,$reservoirNews);
+//       $middleRank = $this->getRank($newsRank,$newRank,$reservoirNews);
+//         News::where('id',$newsId)->update(['order_by',$middleRank]);
+
+//    $pre = $this->getRank($newsRank,$newRank,$reservoirNews);
+//       dd($newsRank);
+//        dd($reservoirNews);
+//       $total = $reservoirNews->count();
+//        $news =$reservoirNews->where('id', $newsId)->first();
+//        $currentOrderBy = $news->order_by;
+////        dd($currentOrderBy);
+////        $i = 1;
+//
+//        foreach ($reservoirNews as $position => $record ) {
+//            for ($i = $position;$i <= $total;$i++){
+//               if ($record->order_by == $currentOrderBy){
+//                   $currentRank = $i;
+//                  $newRank = $this->getRank($currentRank,$newRank,$reservoirNews);
+//                   News::where('id',$newsId)->update(['order_by',$newRank]);
+//
+//               }
+//            }
 //        }
+//        $limit = $i;
+
+//        $currenRank = $i ;
+//        if ($currenRank < $newRank){
+//            if ($i = $newRank) {
+//                $nextOrderBy = $reservoirNews[$i]['order_by'];
+//                dd($nextOrderBy);
+//            }if ($i = $newRank){
+//                $i = $i + 1;
+//                $preOrderBy = $reservoirNews[$i]['order_by'];
+//            }
+//
+//        }elseif ($currenRank > $newRank) {
+//                if ($i = $newRank) {
+//                    $nextOrderBy = $reservoirNews[$i]['order_by'];
+//                }if ($i = $newRank){
+//                    $i = $i - 1;
+//                    $preOrderBy = $reservoirNews[$i]['order_by'];
+//            }
+//        }
+
+//        }
+
+
+
+//        $nextRank = $currenRank + 1;
+//        if ($currenRank < $newRank){
+//
+//        }elseif ($currenRank > $newRank){
+//            for ($i = 0;$i <= $preRank;$i++){
+//                if( $i == $preRank ){
+//                    $i = $i - 1;
+//                    $preOrderBy = $reservoirNews[$i]['order_by'];
+//                }
+//            }
+//        }
+
         return $reservoirNews;
+    }
+
+
+
+
+    public function customSorting($newsId,$newRank,$newsletterId)
+    {
+        $reservoirNews =  News::whereDoesntHave('newsletter', function($query) use ($newsletterId){
+            $query->where('newsletter_id',$newsletterId);
+        })->whereDoesntHave('letterSentOn')
+            ->where('status','=','validated')->orderBy('order_by','asc')->get();
+
+        $newsRank = $this->getPositionOfNews($newsId,$reservoirNews) + 1;
+        $middleRank = $this->getRank($newsRank,$newRank,$reservoirNews);
+       $newssss =  News::where('id',$newsId)->update(['order_by'=>$middleRank]);
+//       dd($newssss);
+    }
+
+    public function getPositionOfNews($newsId,$reservoirNews){
+        $total = $reservoirNews->count();
+        $news =$reservoirNews->where('id', $newsId)->first();
+        $currentOrderBy = $news->order_by;
+
+        foreach ($reservoirNews as $position => $record ) {
+            for ($i = $position;$i <= $total;$i++){
+                if ($record->order_by == $currentOrderBy){
+                    return $currentRank = $i;
+
+                }
+            }
+        }
+
+    }
+
+    public function getRank($currentRank,$newRank,$reservoirNews){
+
+        if ($currentRank < $newRank){
+            if ($i = $newRank) {
+                $nextOrderBy = $reservoirNews[$i]['order_by'];
+                $i = $newRank;
+                $i = $i + 1;
+                $preOrderBy = $reservoirNews[$i]['order_by'];
+
+            }
+            return $this->getLexoRank($nextOrderBy,$preOrderBy);
+
+        }elseif ($currentRank > $newRank) {
+            if ($i = $newRank) {
+                $nextOrderBy = $reservoirNews[$i]['order_by'];
+                $i = $newRank - 1;
+                $preOrderBy = $reservoirNews[$i]['order_by'];
+            }
+            return $this->getLexoRank($nextOrderBy,$preOrderBy);
+
+        }
+
     }
 
 //    public function autoFillOrderByInReservoir($newsletterId){
@@ -297,13 +413,17 @@ class NewsService {
 
 
     public function getLexoRank($prev = null, $next = null) {
+        
+
         // if prev null will assume in very first, if next null we'll assume at the end
         // boundary testing care.
-        $prev = $prev == null ? config('kct_const.lexo_rank_min') : $prev;
-        $next = $next == null ? config('kct_const.lexo_rank_max') : $next;
+        $prev = $prev == null ? 'a' : $prev;
+        $next = $next == null ? 'z' : $next;
+
         // as between 'a' and 'b' we will need 'an' so for that we need to make string compare like
         // between a0 and b0 so we get an
         $strLen = $this->getGreaterStringLength($prev, $next) + 1;
+
         // making prev and next to append the a in prev, z in next
         // reason when we need to find between same length and next to each other like
         // b and c so it will like finding between ba and cz ->
@@ -330,6 +450,7 @@ class NewsService {
                 $count = $i;
             }
         }
+
         return $count;
     }
     /**
@@ -341,8 +462,9 @@ class NewsService {
      * @return string
      */
     public function addLexoStrPad($string, $strLen, $min) {
+        //TODO
         $minMax = ($min ? 'min' : 'max');
-        return str_pad($string, $strLen, config("kct_const.lexo_rank_$minMax"));
+        return str_pad($string, $strLen, 'z');
     }
     /**
      * actually finding rank between two equal length strings
@@ -378,9 +500,6 @@ class NewsService {
 
 
 
-    public function customSorting($newsId,$new){
-
-
 
 
 //        $news = News::find($newsId); // Whichever model you are updating
@@ -407,7 +526,7 @@ class NewsService {
 //                'order_by' => $newOrderBy,
 //            ]);
 //        }
-    }
+//    }
     /**
      * @param $id
      */

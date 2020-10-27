@@ -39,6 +39,7 @@ class NewsResource extends Resource {
                 'review_id'               => $this->id,
                 'media_url'               => $this->media_type == 2 ? $this->media_url : $core->getS3Parameter($path), // here 2 is for stock images
                 'review_reactions'        => $this->reviewsCountByvisible,
+                'order_by'                =>$this->order_by,
                 $this->dates(),
                 $this->mergeWhen(in_array($this->status, ['validated', 'sent']), ['schedule_on' => $this->newsLetterSentOn->first() ? $this->newsLetterSentOn->first()->st_time : NULL]),
 

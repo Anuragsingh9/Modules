@@ -45,7 +45,7 @@ class News extends Model {
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function newsletter() {
         return $this->hasMany(NewsNewsletter::class);

@@ -24,5 +24,6 @@ class VerifyCsrfToken extends Middleware
         'newsletter/news/news/newsletter',
         'newsletter/news/delete/newsletter',
         'newsletter/news/news/orderBy',
+        'newsletter/news/news/reservoir',
     ];
 }

@@ -52,6 +52,7 @@ class NewsController extends Controller {
                 'request_media_type' => $request->media_type,
                 'request_media_url'  => $request->media_url,
                 'request_media_blob' => $request->media_blob,
+                'order_by'              => $this->newsService->addOrder()
             ];
             $news = $this->newsService->createNews($param);
             DB::commit();
@@ -234,13 +235,16 @@ class NewsController extends Controller {
     /**
      * @return JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function reservoirNews($newsletterId){
+    public function reservoirNews(Request $request){
         try {
             $auth = AuthorizationsService::getInstance()->isUserBelongsToWorkshop([0,1,2]);
             if (!$auth) {
                 throw new CustomAuthorizationException('Unauthorized Action');
             }
-            $reservoirNews=$this->newsService->getReservoirNews($newsletterId);
+            $newsId = $request->news_id;
+            $new = $request->new_Order;
+            $newsletterId = $request->newsletter_id;
+            $reservoirNews=$this->newsService->getReservoirNews($newsletterId,$newsId,$new);
             return NewsResource::collection($reservoirNews)->additional(['status' => TRUE]);
         } catch (CustomAuthorizationException $exception) {
             return response()->json(['status' => FALSE, 'error' => $exception->getMessage()],403);
@@ -251,8 +255,9 @@ class NewsController extends Controller {
         try {
             DB::connection()->beginTransaction();
             $newsId = $request->news_id;
-            $new = $request->new_Order;
-            $this->newsService->customSorting($newsId,$new);
+            $newOrder = $request->new_Order;
+            $newsletterId = $request->newsletter_id;
+            $this->newsService->customSorting($newsId,$newOrder,$newsletterId);
             DB::connection()->commit();
             return response()->json(['status' => TRUE,'data' =>__('newsletter::message.deleted_news')], 200);
         } catch (\Exception $e) {
