@@ -17,8 +17,10 @@ Route::group(['middleware' => ['web','newsmoderation'], 'prefix' => 'newsletter'
         Route::get('news/reservoir','NewsController@reservoirNews');
         Route::get('single/news','NewsController@show');
         Route::post('news/orderBy','NewsController@ReservoirCustomSorting');
+        Route::post('swagger/demo','SwagerDemoController@create');
+        Route::get('get/demo','SwagerDemoController@show');
 
-    Route::group(['prefix' => 'review'], function () {
+        Route::group(['prefix' => 'review'], function () {
         Route::post('review/create', 'ReviewController@store')->name('review.createReview'); // create review
         Route::get('getnews/review/{newsId}','ReviewController@getNewsReviews')->name('review.getReview');// get review of a news
         Route::get('searchNews','ReviewController@searchNews');// Search news by Title
