@@ -18,3 +18,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/testing/{mytest}','TestingController@index');
+Route::post('/swagger/demo','SwagerDemoController@create');
+//Route::get('get/demo','SwagerDemoController@show');

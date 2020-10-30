@@ -81,9 +81,9 @@ window.onload = function() {
     validatorUrl: {!! isset($validatorUrl) ? '"' . $validatorUrl . '"' : 'null' !!},
     oauth2RedirectUrl: "{{ route('l5-swagger.oauth2_callback') }}",
 
-    requestInterceptor: function() {
-      this.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
-      return this;
+    requestInterceptor: function(req) {
+      req.headers['X-CSRF-TOKEN'] = 'hM4lUy0ednXXWEFwYc1iRprnSuBuPwQH6Z4pi6v8';
+      return req;
     },
 
     presets: [

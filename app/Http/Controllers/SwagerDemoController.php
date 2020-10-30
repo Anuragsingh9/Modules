@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\Newsletter\Http\Controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Modules\Newsletter\Entities\Swagger;
+use App\Swagger;
 /**
  * @OA\Info(title="My First API", version="0.1")
  */
@@ -20,16 +20,38 @@ class SwagerDemoController extends Controller
         return view('newsletter::index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     * @return Response
-     */
+
 
     /**
-     * @OA\Post(
-     *     path="/newsletter/news/swagger/demo",
-     *     @OA\Response(response="200", description="An example resource")
-     * )
+     * @SWG\Post(
+     *      path="/api/swagger/demo",
+     *      operationId="Post testing",
+     *      summary="Add User",
+     *      consumes={"application/x-www-form-urlencoded"},
+     *      produces={"application/json"},
+     *      @SWG\Parameter(
+     *          name="name",
+     *          in="formData",
+     *          required=true,
+     *          type="string"
+     *      ),
+     *      @SWG\Parameter(
+     *          name="email",
+     *          in="formData",
+     *          required=true,
+     *          type="string"
+     *      ),
+     *     @SWG\Parameter(
+     *          name="address",
+     *          in="formData",
+     *          required=true,
+     *          type="string"
+     *      ),
+     *      @SWG\Response(
+     *          response=200,
+     *          description="Success"
+     *      ),
+     *     )
      */
     public function create(Request $request)
     {
@@ -39,8 +61,7 @@ class SwagerDemoController extends Controller
         'address' => $request->address,
         ];
          return Swagger::create($param);
-//        dd($param);
-//        return view('newsletter::create');
+
     }
 
     /**
@@ -53,15 +74,20 @@ class SwagerDemoController extends Controller
     }
 
     /**
-     * Show the specified resource.
-     * @return Response
-     */
-
-    /**
-     * @OA\Get(
-     *     path="/newsletter/news/get/demo",
-     *     @OA\Response(response="200", description="An example resource")
+     * @SWG\Get(
+     *   path="/get/demo",
+     *   summary="Get Testing",
+     *   operationId="testing",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *		@SWG\Parameter(
+     *          name="mytest",
+     *          in="path",
+     *          type="string"
+     *      ),
      * )
+     *
      */
     public function show()
     {

@@ -24,6 +24,6 @@ class TestingController extends Controller
      *
      */
     public function index(Request $request){
-        echo $request->mytest;
+        return $request->mytest;
     }
 }
