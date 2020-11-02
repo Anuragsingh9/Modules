@@ -14,6 +14,10 @@ class SwaggerResource extends Resource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return
+        [
+            'Name' =>$this->name,
+        ];
+//        return parent::toArray($request);
     }
 }

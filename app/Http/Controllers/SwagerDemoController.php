@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SwaggerResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -49,8 +50,14 @@ class SwagerDemoController extends Controller
      *      ),
      *      @SWG\Response(
      *          response=200,
-     *          description="Success"
-     *      ),
+     *          description="Example extended response",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  ref="#/Http/Resources/SwaggerResource"
+     *              )
+     *          )
+     *     ),
      *     )
      */
     public function create(Request $request)
@@ -60,7 +67,9 @@ class SwagerDemoController extends Controller
         'email' => $request->email,
         'address' => $request->address,
         ];
-         return Swagger::create($param);
+         $swg = Swagger::create($param);
+//        return new SwaggerResource($swg);
+        return (new SwaggerResource($swg));
 
     }
 
